@@ -16,6 +16,7 @@ var (
 	readTimeoutSeconds = 10
 )
 
+// TODO: different cases(ports, timeouts etc)
 func TestRunMetricsServer(t *testing.T) {
 	errChan := make(chan error, 1)
 

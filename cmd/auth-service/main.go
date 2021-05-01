@@ -4,8 +4,11 @@ import (
 	"auth-service/pkg/config"
 	"auth-service/pkg/logging"
 	"auth-service/pkg/metrics"
+	"auth-service/pkg/web"
+	"fmt"
 	"github.com/gorilla/mux"
 	"go.uber.org/zap"
+	"time"
 )
 
 var (
@@ -32,7 +35,9 @@ func main()  {
 	router := mux.NewRouter()
 	go metrics.RunMetricsServer(router, metricsPort, writeTimeoutSeconds, readTimeoutSeconds)
 
-	select {
+	server := web.InitServer(router, fmt.Sprintf(":%d", serverPort), time.Duration(int32(writeTimeoutSeconds)) * time.Second,
+		time.Duration(int32(readTimeoutSeconds)) * time.Second)
 
-	}
+	logger.Info("web server is up and running", zap.Int("serverPort", serverPort))
+	panic(server.ListenAndServe())
 }

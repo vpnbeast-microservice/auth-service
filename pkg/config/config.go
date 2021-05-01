@@ -13,7 +13,7 @@ func init() {
 	logger = logging.GetLogger()
 }
 
-func getStringEnv(key, defaultValue string) string {
+func GetStringEnv(key, defaultValue string) string {
 	value := os.Getenv(key)
 	if len(value) == 0 {
 		return defaultValue
