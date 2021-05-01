@@ -2,16 +2,16 @@ package web
 
 import "time"
 
-type authenticationRequest struct {
+type authRequest struct {
 	Username string `json:"userName"`
 	Password string `json:"password"`
 }
 
-type authenticationResponse struct {
+type authSuccessResponse struct {
 	Uuid string `json:"uuid"`
-	Id int `json:"id"`
-	CreatedAt time.Time `json:"createdAt"`
-	UpdatedAt time.Time `json:"updatedAt"`
+	Id int64 `json:"id"`
+	CreatedAt string `json:"createdAt"`
+	UpdatedAt string `json:"updatedAt"`
 	Version int `json:"version"`
 	Username string `json:"username"`
 	Email string `json:"email"`
@@ -22,7 +22,24 @@ type authenticationResponse struct {
 	AccessToken string `json:"accessToken"`
 	AccessTokenExpiresAt time.Time `json:"accessTokenExpiresAt"`
 	RefreshToken string `json:"refreshToken"`
-	RefreshTokenExpiresAt time.Time `json:"refreshTokenExpiresAt"`
+	RefreshTokenExpiresAt string `json:"refreshTokenExpiresAt"`
+}
+
+// when user not found or auth failed
+type authFailResponse struct {
+	Tag string `json:"tag"`
+	ErrorMessage string `json:"errorMessage"`
+	Status bool `json:"status"`
+	HttpCode int `json:"httpCode"`
+	Timestamp time.Time `json:"timestamp"`
+}
+
+type validationErrorResponse struct {
+	Timestamp time.Time `json:"timestamp"`
+	HttpCode int `json:"httpCode"`
+	Tag string `json:"tag"`
+	Status bool `json:"status"`
+	ErrorMessage []string `json:"errorMessage"`
 }
 
 type malformedRequest struct {

@@ -23,7 +23,7 @@ func init() {
 	router = mux.NewRouter()
 
 	// database related variables
-	dbUrl = config.GetStringEnv("DB_URL", "spring:123asd456@tcp(127.0.0.1:3306)/vpnbeast")
+	dbUrl = config.GetStringEnv("DB_URL", "spring:123asd456@tcp(127.0.0.1:3306)/vpnbeast?parseTime=true")
 	dbDriver = config.GetStringEnv("DB_DRIVER", "mysql")
 	healthPort = config.GetIntEnv("HEALTH_PORT", 5002)
 	dbMaxOpenConn = config.GetIntEnv("DB_MAX_OPEN_CONN", 25)

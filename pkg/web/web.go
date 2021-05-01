@@ -27,6 +27,7 @@ func registerHandlers(router *mux.Router) {
 		Schemes("http").Name("ping")
 	router.HandleFunc("/users/authenticate", authenticateHandler).Methods("POST").
 		Schemes("http").Name("authenticate")
+	// TODO: request validation middleware
 	// router.Use(loggingMiddleware)
 }
 
