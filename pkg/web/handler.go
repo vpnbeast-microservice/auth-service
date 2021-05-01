@@ -33,6 +33,8 @@ func authenticateHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// TODO: request validation
+
 	if (len(request.Username) < 3 || len(request.Username) > 40) || (len(request.Password) < 5 || len(request.Password) > 200) {
 		logger.Warn("validation failed", zap.String("user", request.Username),
 			zap.String("password", request.Password))
