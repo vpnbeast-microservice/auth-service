@@ -13,7 +13,7 @@ import (
 )
 
 var (
-	serverPort, metricsPort, writeTimeoutSeconds, readTimeoutSeconds, dbMaxOpenConn, dbMaxIdleConn,
+	serverPort, metricsPort, healthPort, writeTimeoutSeconds, readTimeoutSeconds, dbMaxOpenConn, dbMaxIdleConn,
 	dbConnMaxLifetimeMin, healthCheckMaxTimeoutMin int
 	dbUrl, dbDriver string
 	logger *zap.Logger
@@ -29,6 +29,7 @@ func init() {
 	// database related variables
 	dbUrl = config.GetStringEnv("DB_URL", "spring:123asd456@tcp(127.0.0.1:3306)/vpnbeast")
 	dbDriver = config.GetStringEnv("DB_DRIVER", "mysql")
+	healthPort = config.GetIntEnv("HEALTH_PORT", 5002)
 	dbMaxOpenConn = config.GetIntEnv("DB_MAX_OPEN_CONN", 25)
 	dbMaxIdleConn = config.GetIntEnv("DB_MAX_IDLE_CONN", 25)
 	dbConnMaxLifetimeMin = config.GetIntEnv("DB_CONN_MAX_LIFETIME_MIN", 5)
@@ -43,14 +44,21 @@ func main()  {
 		}
 	}()
 
+	router := mux.NewRouter()
+	go metrics.RunMetricsServer(router, metricsPort, writeTimeoutSeconds, readTimeoutSeconds)
+
 	db := database.InitDatabase(dbDriver, dbUrl, dbMaxOpenConn, dbMaxIdleConn, dbConnMaxLifetimeMin)
 
 	go func() {
-		database.RunHealthProbe(db, healthCheckMaxTimeoutMin)
+		database.RunHealthProbe(router, db, healthCheckMaxTimeoutMin, healthPort)
 	}()
 
-	router := mux.NewRouter()
-	go metrics.RunMetricsServer(router, metricsPort, writeTimeoutSeconds, readTimeoutSeconds)
+	defer func() {
+		err := db.Close()
+		if err != nil {
+			panic(err)
+		}
+	}()
 
 	server := web.InitServer(router, fmt.Sprintf(":%d", serverPort), time.Duration(int32(writeTimeoutSeconds)) * time.Second,
 		time.Duration(int32(readTimeoutSeconds)) * time.Second)

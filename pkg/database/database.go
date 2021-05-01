@@ -3,6 +3,7 @@ package database
 import (
 	"auth-service/pkg/logging"
 	"database/sql"
+	_ "github.com/go-sql-driver/mysql"
 	"go.uber.org/zap"
 	"time"
 )
