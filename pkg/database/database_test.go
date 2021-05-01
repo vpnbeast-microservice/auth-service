@@ -1,3 +1,7 @@
 package database
 
-// TODO: unit testing on database.go
+import "testing"
+
+func TestInitDatabase(t *testing.T) {
+	// TODO: implement
+}

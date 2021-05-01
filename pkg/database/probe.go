@@ -3,6 +3,7 @@ package database
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"github.com/etherlabsio/healthcheck"
 	"github.com/gorilla/mux"
 	"go.uber.org/zap"
@@ -23,5 +24,5 @@ func RunHealthProbe(router *mux.Router, db *sql.DB, healthCheckMaxTimeoutMin, he
 	))
 
 	logger.Info("probing mysql", zap.Int("port", healthPort))
-	panic(http.ListenAndServe(":9290" , router))
+	panic(http.ListenAndServe(fmt.Sprintf(":%d", healthPort) , router))
 }

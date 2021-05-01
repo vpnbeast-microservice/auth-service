@@ -1,3 +1,7 @@
 package database
 
-// TODO: unit testing on probe.go
+import "testing"
+
+func TestRunHealthProbe(t *testing.T) {
+	// TODO: Implement
+}

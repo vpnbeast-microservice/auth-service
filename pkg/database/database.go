@@ -1,25 +1,54 @@
 package database
 
 import (
+	"auth-service/pkg/config"
 	"auth-service/pkg/logging"
 	"database/sql"
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/gorilla/mux"
 	"go.uber.org/zap"
 	"time"
 )
 
-var logger *zap.Logger
+var (
+	logger *zap.Logger
+	dbMaxOpenConn, dbMaxIdleConn, dbConnMaxLifetimeMin, healthCheckMaxTimeoutMin, healthPort int
+	dbUrl, dbDriver string
+	router *mux.Router
+	db *sql.DB
+)
 
 func init() {
 	logger = logging.GetLogger()
+	router = mux.NewRouter()
+
+	// database related variables
+	dbUrl = config.GetStringEnv("DB_URL", "spring:123asd456@tcp(127.0.0.1:3306)/vpnbeast")
+	dbDriver = config.GetStringEnv("DB_DRIVER", "mysql")
+	healthPort = config.GetIntEnv("HEALTH_PORT", 5002)
+	dbMaxOpenConn = config.GetIntEnv("DB_MAX_OPEN_CONN", 25)
+	dbMaxIdleConn = config.GetIntEnv("DB_MAX_IDLE_CONN", 25)
+	dbConnMaxLifetimeMin = config.GetIntEnv("DB_CONN_MAX_LIFETIME_MIN", 5)
+	healthCheckMaxTimeoutMin = config.GetIntEnv("HEALTHCHECK_MAX_TIMEOUT_MIN", 5)
+
+	db = initDatabase(dbDriver, dbUrl, dbMaxOpenConn, dbMaxIdleConn, dbConnMaxLifetimeMin)
 }
 
-func InitDatabase(dbDriver, dbUrl string, dbMaxOpenConn, dbMaxIdleConn, dbConnMaxLifetimeMin int) *sql.DB {
+func initDatabase(dbDriver, dbUrl string, dbMaxOpenConn, dbMaxIdleConn, dbConnMaxLifetimeMin int) *sql.DB {
 	db, err := sql.Open(dbDriver, dbUrl)
 	if err != nil {
 		logger.Fatal("fatal error occured while opening database connection", zap.String("error", err.Error()))
 	}
 	tuneDbPooling(db, dbMaxOpenConn, dbMaxIdleConn, dbConnMaxLifetimeMin)
+
+	go func() {
+		RunHealthProbe(router, db, healthCheckMaxTimeoutMin, healthPort)
+	}()
+
+	return db
+}
+
+func GetDatabase() *sql.DB {
 	return db
 }
 

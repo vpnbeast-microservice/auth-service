@@ -1,3 +1,7 @@
 package web
 
-// TODO: unit testing on web.go
+import "testing"
+
+func TestInitServer(t *testing.T) {
+	// TODO: implement
+}
