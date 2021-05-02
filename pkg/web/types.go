@@ -37,19 +37,19 @@ type authFailResponse struct {
 	Timestamp time.Time `json:"timestamp"`
 }
 
-type validationErrorResponse struct {
+/*type validationErrorResponse struct {
 	Timestamp time.Time `json:"timestamp"`
 	HttpCode int `json:"httpCode"`
 	Tag string `json:"tag"`
 	Status bool `json:"status"`
 	ErrorMessage []string `json:"errorMessage"`
-}
+}*/
 
-type malformedRequest struct {
+/*type malformedRequest struct {
 	status int
 	msg    string
 }
 
 func (mr *malformedRequest) Error() string {
 	return mr.msg
-}
+}*/

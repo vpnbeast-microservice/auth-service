@@ -1,16 +1,6 @@
 package web
 
-import (
-	"encoding/json"
-	"errors"
-	"fmt"
-	"github.com/golang/gddo/httputil/header"
-	"io"
-	"net/http"
-	"strings"
-)
-
-func decodeJSONBody(w http.ResponseWriter, r *http.Request, dst interface{}) error {
+/*func decodeJSONBody(w http.ResponseWriter, r *http.Request, dst interface{}) error {
 	// If the Content-Type header is present, check that it has the value
 	// application/json. Note that we are using the gddo/httputil/header
 	// package to parse and extract the value here, so the check works
@@ -107,4 +97,4 @@ func decodeJSONBody(w http.ResponseWriter, r *http.Request, dst interface{}) err
 	}
 
 	return nil
-}
+}*/
