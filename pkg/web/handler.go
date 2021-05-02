@@ -62,8 +62,11 @@ func authenticateHandler() gin.HandlerFunc {
 			logger.Info("user fetched")
 			result.Tag = "getToken"
 			context.JSON(http.StatusOK, result)
+			return
 		default:
-			panic(err)
+			logger.Error("unknown error", zap.String("error", err.Error()))
+			context.JSON(http.StatusInternalServerError, gin.H{"error": "unknown error occured at the backend"})
+			return
 		}
 	}
 }
