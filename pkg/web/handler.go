@@ -2,9 +2,9 @@ package web
 
 import (
 	"database/sql"
-	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator/v10"
 	"go.uber.org/zap"
 	"net/http"
 	"time"
@@ -20,16 +20,14 @@ func pingHandler() gin.HandlerFunc {
 func authenticateHandler() gin.HandlerFunc {
 	return func(context *gin.Context) {
 		var request authRequest
-		err := decodeJSONBody(context.Writer, context.Request, &request)
-		if err != nil {
-			logger.Error("an error occured while decoding json body", zap.String("error", err.Error()))
-			var mr *malformedRequest
-			if errors.As(err, &mr) {
-				context.JSON(mr.status, gin.H{"error": http.StatusText(http.StatusInternalServerError)})
-			} else {
-				context.JSON(http.StatusInternalServerError, gin.H{"error": http.StatusText(http.StatusInternalServerError)})
+		if err := context.ShouldBindJSON(&request); err != nil {
+			errors, _ := err.(validator.ValidationErrors)
+			e := make(map[string]string)
+			for _, err := range errors {
+				e[err.Field()] = err.Tag()
+				logger.Info("", zap.Any("err", err))
 			}
-
+			context.JSON(400, e)
 			return
 		}
 
@@ -65,7 +63,13 @@ func authenticateHandler() gin.HandlerFunc {
 			return
 		default:
 			logger.Error("unknown error", zap.String("error", err.Error()))
-			context.JSON(http.StatusInternalServerError, gin.H{"error": "unknown error occured at the backend"})
+			context.JSON(http.StatusInternalServerError, authFailResponse{
+				Tag:          "getUser",
+				ErrorMessage: "unknown error occured at the backend",
+				Status:       false,
+				HttpCode:     500,
+				Timestamp:    time.Now(),
+			})
 			return
 		}
 	}
