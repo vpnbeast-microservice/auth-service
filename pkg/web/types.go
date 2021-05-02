@@ -1,6 +1,9 @@
 package web
 
-import "time"
+import (
+	"database/sql"
+	"time"
+)
 
 type authRequest struct {
 	Username string `json:"userName"`
@@ -15,7 +18,7 @@ type authSuccessResponse struct {
 	Version int `json:"version"`
 	Username string `json:"username"`
 	Email string `json:"email"`
-	LastLogin time.Time `json:"lastLogin"`
+	LastLogin sql.NullTime `json:"lastLogin"`
 	Enabled bool `json:"enabled"`
 	EmailVerified bool `json:"emailVerified"`
 	Tag string `json:"tag"`

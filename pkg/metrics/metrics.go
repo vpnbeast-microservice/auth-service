@@ -3,8 +3,7 @@ package metrics
 import (
 	"auth-service/pkg/logging"
 	"fmt"
-	"github.com/gorilla/mux"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 	"net/http"
 	"time"
@@ -18,14 +17,15 @@ func init() {
 	logger = logging.GetLogger()
 }
 
-func RunMetricsServer(router *mux.Router, metricsPort, writeTimeoutSeconds, readTimeoutSeconds int) {
+func RunMetricsServer(router *gin.Engine, metricsPort, writeTimeoutSeconds, readTimeoutSeconds int) {
 	metricServer := &http.Server{
 		Handler: router,
 		Addr: fmt.Sprintf(":%d", metricsPort),
 		WriteTimeout: time.Duration(int32(writeTimeoutSeconds)) * time.Second,
 		ReadTimeout:  time.Duration(int32(readTimeoutSeconds)) * time.Second,
 	}
-	router.Handle("/metrics", promhttp.Handler())
+	router.GET("/metrics", prometheusHandler())
+
 	logger.Info("metric server is up and running", zap.Int("metricsPort", metricsPort))
 	panic(metricServer.ListenAndServe())
 }

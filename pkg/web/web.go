@@ -4,7 +4,7 @@ import (
 	"auth-service/pkg/database"
 	"auth-service/pkg/logging"
 	"database/sql"
-	"github.com/gorilla/mux"
+	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 	"net/http"
 	"time"
@@ -21,17 +21,14 @@ func init() {
 	db = database.GetDatabase()
 }
 
-func registerHandlers(router *mux.Router) {
-	pingHandler := http.HandlerFunc(pingHandler)
-	router.HandleFunc("/health/ping", pingHandler).Methods("GET").
-		Schemes("http").Name("ping")
-	router.HandleFunc("/users/authenticate", authenticateHandler).Methods("POST").
-		Schemes("http").Name("authenticate")
+func registerHandlers(router *gin.Engine) {
+	router.GET("/health/ping", pingHandler())
+	router.POST("/users/authenticate", authenticateHandler())
 	// TODO: request validation middleware
 	// router.Use(loggingMiddleware)
 }
 
-func InitServer(router *mux.Router, addr string, writeTimeout time.Duration, readTimeout time.Duration, ) *http.Server {
+func InitServer(router *gin.Engine, addr string, writeTimeout time.Duration, readTimeout time.Duration, ) *http.Server {
 	registerHandlers(router)
 	return &http.Server{
 		Handler: router,
