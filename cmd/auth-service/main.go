@@ -7,10 +7,8 @@ import (
 	"auth-service/pkg/metrics"
 	"auth-service/pkg/web"
 	"database/sql"
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
-	"time"
 )
 
 var (
@@ -49,9 +47,7 @@ func main()  {
 	router := gin.Default()
 	go metrics.RunMetricsServer(router, metricsPort, writeTimeoutSeconds, readTimeoutSeconds)
 
-	server := web.InitServer(router, fmt.Sprintf(":%d", serverPort), time.Duration(int32(writeTimeoutSeconds)) * time.Second,
-		time.Duration(int32(readTimeoutSeconds)) * time.Second)
-
+	server := web.InitServer(router, serverPort, writeTimeoutSeconds, readTimeoutSeconds)
 	logger.Info("web server is up and running", zap.Int("serverPort", serverPort))
 	panic(server.ListenAndServe())
 }

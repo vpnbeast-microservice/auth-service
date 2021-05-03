@@ -28,7 +28,6 @@ func authenticateHandler() gin.HandlerFunc {
 
 		trans, found := uni.GetTranslator("en")
 		if !found {
-			// TODO: return json error
 			logger.Error("translator not found")
 			context.JSON(http.StatusBadRequest, errorResponse{
 				Tag:          "authUser",
