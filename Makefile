@@ -2,10 +2,10 @@ test:
 	go test ./...
 
 build:
-	go build -o bin/main cmd/oreilly-trial/main.go
+	go build -o bin/main cmd/auth-service/main.go
 
 run:
-	go run cmd/oreilly-trial/main.go
+	go run cmd/auth-service/main.go
 
 cross-compile:
 	# 32-Bit Systems
