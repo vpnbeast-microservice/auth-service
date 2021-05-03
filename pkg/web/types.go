@@ -6,8 +6,8 @@ import (
 )
 
 type authRequest struct {
-	Username string `json:"userName" binding:"required,min=3,max=16"`
-	Password string `json:"password" binding:"required,min=3,max=16"`
+	Username string `json:"userName" validate:"required,min=3,max=16"`
+	Password string `json:"password" validate:"required,min=3,max=16"`
 }
 
 type authSuccessResponse struct {
@@ -37,13 +37,21 @@ type authFailResponse struct {
 	Timestamp time.Time `json:"timestamp"`
 }
 
-/*type validationErrorResponse struct {
+type validationErrorResponse struct {
 	Timestamp time.Time `json:"timestamp"`
 	HttpCode int `json:"httpCode"`
 	Tag string `json:"tag"`
 	Status bool `json:"status"`
 	ErrorMessage []string `json:"errorMessage"`
-}*/
+}
+
+type errorResponse struct {
+	Timestamp time.Time `json:"timestamp"`
+	HttpCode int `json:"httpCode"`
+	Tag string `json:"tag"`
+	Status bool `json:"status"`
+	ErrorMessage string `json:"error"`
+}
 
 /*type malformedRequest struct {
 	status int
