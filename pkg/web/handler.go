@@ -74,11 +74,6 @@ func authenticateHandler() gin.HandlerFunc {
 			}
 		}
 
-		// TODO: request validation
-		// TODO: check if password is correct, return success response else return fail response
-		// TODO: generate accessToken, accessTokenExpiresAt, refreshToken, refreshTokenExpiresAt, update database and return response
-		// TODO: update last_login column on db and return response(aspect oriented programing? check https://github.com/gogap/aop)
-
 		result := authSuccessResponse{}
 		sqlStatement := fmt.Sprintf("SELECT uuid, id, created_at, updated_at, version, user_name, email, " +
 			"last_login, enabled, email_verified, access_token, access_token_expires_at, refresh_token, " +
@@ -99,6 +94,9 @@ func authenticateHandler() gin.HandlerFunc {
 			context.Abort()
 			return
 		case nil:
+			// TODO: check if password is correct, return success response else return fail response
+			// TODO: generate accessToken, accessTokenExpiresAt, refreshToken, refreshTokenExpiresAt, update database and return response
+			// TODO: update last_login column on db and return response(aspect oriented programing? check https://github.com/gogap/aop)
 			logger.Info("user fetched")
 			result.Tag = "authUser"
 			context.JSON(http.StatusOK, result)

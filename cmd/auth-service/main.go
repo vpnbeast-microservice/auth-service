@@ -23,6 +23,7 @@ func init() {
 	gin.SetMode(gin.ReleaseMode)
 	logger = logging.GetLogger()
 	db = database.GetDatabase()
+
 	// web server/metric server related variables
 	serverPort = config.GetIntEnv("SERVER_PORT", 5000)
 	metricsPort = config.GetIntEnv("METRICS_PORT", 5001)
