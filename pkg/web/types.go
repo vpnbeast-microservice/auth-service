@@ -13,6 +13,7 @@ type authRequest struct {
 type authSuccessResponse struct {
 	Uuid string `json:"uuid"`
 	Id int64 `json:"id"`
+	EncryptedPassword string `json:"encryptedPassword,omitempty"`
 	CreatedAt string `json:"createdAt"`
 	UpdatedAt string `json:"updatedAt"`
 	Version int `json:"version"`
@@ -51,6 +52,16 @@ type errorResponse struct {
 	Tag string `json:"tag"`
 	Status bool `json:"status"`
 	ErrorMessage string `json:"error"`
+}
+
+type encryptRequest struct {
+	PlainText string `json:"plainText"`
+	EncryptedText string `json:"encryptedText"`
+}
+
+type encryptResponse struct {
+	Tag string `json:"tag"`
+	Status bool `json:"status"`
 }
 
 /*type malformedRequest struct {
