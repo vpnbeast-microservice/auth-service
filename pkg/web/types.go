@@ -1,13 +1,17 @@
 package web
 
 import (
-	"database/sql"
 	"time"
 )
 
 type authRequest struct {
 	Username string `json:"userName" validate:"required,min=3,max=16"`
 	Password string `json:"password" validate:"required,min=3,max=16"`
+}
+
+type selectResult struct {
+	EncryptedPassword string
+	UserName string
 }
 
 type authSuccessResponse struct {
@@ -19,7 +23,7 @@ type authSuccessResponse struct {
 	Version int `json:"version"`
 	Username string `json:"username"`
 	Email string `json:"email"`
-	LastLogin sql.NullTime `json:"lastLogin"`
+	LastLogin time.Time `json:"lastLogin"`
 	Enabled bool `json:"enabled"`
 	EmailVerified bool `json:"emailVerified"`
 	Tag string `json:"tag"`

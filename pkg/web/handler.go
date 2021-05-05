@@ -76,14 +76,11 @@ func authenticateHandler() gin.HandlerFunc {
 			}
 		}
 
-		result := authSuccessResponse{}
-		sqlStatement := fmt.Sprintf("SELECT uuid, id, encrypted_password, created_at, updated_at, version, " +
-			"user_name, email, last_login, enabled, email_verified, access_token, access_token_expires_at, " +
-			"refresh_token, refresh_token_expires_at FROM users WHERE user_name='%s'", request.Username)
+		result := selectResult{}
+		sqlStatement := fmt.Sprintf("SELECT encrypted_password, user_name FROM users WHERE user_name='%s'",
+			request.Username)
 		row := db.QueryRow(sqlStatement)
-		switch err := row.Scan(&result.Uuid, &result.Id, &result.EncryptedPassword, &result.CreatedAt, &result.UpdatedAt,
-			&result.Version, &result.Username, &result.Email, &result.LastLogin, &result.Enabled, &result.EmailVerified,
-			&result.AccessToken, &result.AccessTokenExpiresAt, &result.RefreshToken, &result.RefreshTokenExpiresAt); err {
+		switch err := row.Scan(&result.EncryptedPassword, &result.UserName); err {
 		case sql.ErrNoRows:
 			logger.Warn("no rows were returned!", zap.String("user", request.Username))
 			context.JSON(http.StatusBadRequest, authFailResponse{
@@ -96,11 +93,6 @@ func authenticateHandler() gin.HandlerFunc {
 			context.Abort()
 			return
 		case nil:
-			// TODO: generate accessToken, accessTokenExpiresAt, refreshToken, refreshTokenExpiresAt, update database and return response
-			// TODO: update last_login column on db and return response(aspect oriented programing? check https://github.com/gogap/aop)
-
-
-			// TODO: check if password is correct, return success response else return fail response
 			logger.Info("", zap.String("password", request.Password))
 			postBody, err := json.Marshal(encryptRequest{
 				PlainText:     request.Password,
@@ -118,8 +110,6 @@ func authenticateHandler() gin.HandlerFunc {
 				context.Abort()
 				return
 			}
-
-			logger.Info("", zap.Any("body", postBody))
 
 			responseBody := bytes.NewBuffer(postBody)
 			resp, err := http.Post("http://localhost:8085/encryption-controller/check",
@@ -177,6 +167,42 @@ func authenticateHandler() gin.HandlerFunc {
 			}
 
 			if encryptResponse.Status {
+				// TODO: generate accessToken, accessTokenExpiresAt, refreshToken, refreshTokenExpiresAt, update database and return response
+				// TODO: update last_login column on db and return response(aspect oriented programing? check https://github.com/gogap/aop)
+				// TODO: return respse with the updated last_login and tokens
+				var datetime = time.Now()
+				dt := datetime.Format(time.RFC3339)
+				updateStatement := fmt.Sprintf("UPDATE users SET version = version + 1, last_login='%v', " +
+					"access_token='%v', access_token_expires_at='%v', refresh_token='%s', refresh_token_expires_at='%v' " +
+					"WHERE user_name='%s'", dt, "a", dt, "b", dt, request.Username)
+				_, err = db.Exec(updateStatement)
+				if err != nil {
+					logger.Warn("an error  occured while updating db", zap.String("error", err.Error()))
+					context.JSON(http.StatusBadRequest, authFailResponse{
+						Tag:          "authUser",
+						ErrorMessage: "Unknown error occured at the backend!",
+						Status:       false,
+						HttpCode:     500,
+						Timestamp:    time.Now(),
+					})
+					context.Abort()
+					return
+				}
+
+				result := authSuccessResponse{}
+				sqlStatement := fmt.Sprintf("SELECT uuid, id, encrypted_password, created_at, updated_at, version, " +
+					"user_name, email, last_login, enabled, email_verified, access_token, access_token_expires_at, " +
+					"refresh_token, refresh_token_expires_at FROM users WHERE user_name='%s'", request.Username)
+				row := db.QueryRow(sqlStatement)
+				switch err := row.Scan(&result.Uuid, &result.Id, &result.EncryptedPassword, &result.CreatedAt, &result.UpdatedAt,
+					&result.Version, &result.Username, &result.Email, &result.LastLogin, &result.Enabled, &result.EmailVerified,
+					&result.AccessToken, &result.AccessTokenExpiresAt, &result.RefreshToken, &result.RefreshTokenExpiresAt); err {
+				case nil:
+
+				default:
+
+				}
+
 				result.Tag = "authUser"
 				result.EncryptedPassword = ""
 				context.JSON(http.StatusOK, result)
@@ -194,7 +220,6 @@ func authenticateHandler() gin.HandlerFunc {
 				context.Abort()
 				return
 			}
-
 
 		default:
 			logger.Error("unknown error", zap.String("error", err.Error()))
