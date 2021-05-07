@@ -1,6 +1,7 @@
 package web
 
 import (
+	"auth-service/pkg/jwt"
 	"bytes"
 	"database/sql"
 	"encoding/json"
@@ -167,14 +168,41 @@ func authenticateHandler() gin.HandlerFunc {
 			}
 
 			if encryptResponse.Status {
-				// TODO: generate accessToken, accessTokenExpiresAt, refreshToken, refreshTokenExpiresAt, update database and return response
-				// TODO: update last_login column on db and return response(aspect oriented programing? check https://github.com/gogap/aop)
-				// TODO: return respse with the updated last_login and tokens
 				var datetime = time.Now()
 				dt := datetime.Format(time.RFC3339)
+				accessToken, err := jwt.GenerateAccessToken(request.Username)
+				if err != nil {
+					logger.Error("an error occured generating access token",
+						zap.String("error", err.Error()))
+					context.JSON(http.StatusInternalServerError, authFailResponse{
+						Tag:          "authUser",
+						ErrorMessage: "Unknown error occured at the backend!",
+						Status:       false,
+						HttpCode:     500,
+						Timestamp:    time.Now(),
+					})
+					context.Abort()
+					return
+				}
+
+				refreshToken, err := jwt.GenerateRefreshToken(request.Username)
+				if err != nil {
+					logger.Error("an error occured generating refresh token",
+						zap.String("error", err.Error()))
+					context.JSON(http.StatusInternalServerError, authFailResponse{
+						Tag:          "authUser",
+						ErrorMessage: "Unknown error occured at the backend!",
+						Status:       false,
+						HttpCode:     500,
+						Timestamp:    time.Now(),
+					})
+					context.Abort()
+					return
+				}
+
 				updateStatement := fmt.Sprintf("UPDATE users SET version = version + 1, last_login='%v', " +
 					"access_token='%v', access_token_expires_at='%v', refresh_token='%s', refresh_token_expires_at='%v' " +
-					"WHERE user_name='%s'", dt, "a", dt, "b", dt, request.Username)
+					"WHERE user_name='%s'", dt, accessToken, dt, refreshToken, dt, request.Username)
 				_, err = db.Exec(updateStatement)
 				if err != nil {
 					logger.Warn("an error  occured while updating db", zap.String("error", err.Error()))
@@ -198,16 +226,14 @@ func authenticateHandler() gin.HandlerFunc {
 					&result.Version, &result.Username, &result.Email, &result.LastLogin, &result.Enabled, &result.EmailVerified,
 					&result.AccessToken, &result.AccessTokenExpiresAt, &result.RefreshToken, &result.RefreshTokenExpiresAt); err {
 				case nil:
-
+					result.Tag = "authUser"
+					result.EncryptedPassword = ""
+					context.JSON(http.StatusOK, result)
+					context.Abort()
+					return
 				default:
 
 				}
-
-				result.Tag = "authUser"
-				result.EncryptedPassword = ""
-				context.JSON(http.StatusOK, result)
-				context.Abort()
-				return
 			} else {
 				logger.Error("password validation failed")
 				context.JSON(http.StatusBadRequest, authFailResponse{
