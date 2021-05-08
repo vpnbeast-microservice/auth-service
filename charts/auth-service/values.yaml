@@ -2,7 +2,7 @@
 
 deployment:
   name: auth-service
-  image: vpnbeast/auth-service:0.0.7
+  image: vpnbeast/auth-service:0.0.8
   replicaCount: 1
   serverPort: 5000
   managementEndpoint: /health/ping
