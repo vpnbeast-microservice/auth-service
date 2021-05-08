@@ -98,7 +98,6 @@ func authenticateHandler() gin.HandlerFunc {
 			context.Abort()
 			return
 		case nil:
-			logger.Info("", zap.String("password", request.Password))
 			postBody, err := json.Marshal(encryptRequest{
 				PlainText:     request.Password,
 				EncryptedText: result.EncryptedPassword,
@@ -172,8 +171,6 @@ func authenticateHandler() gin.HandlerFunc {
 			}
 
 			if encryptResponse.Status {
-				var datetime = time.Now()
-				dt := datetime.Format(time.RFC3339)
 				accessToken, err := jwt.GenerateToken(request.Username, int32(accessTokenValidInMinutes))
 				if err != nil {
 					logger.Error("an error occured generating access token",
@@ -204,9 +201,15 @@ func authenticateHandler() gin.HandlerFunc {
 					return
 				}
 
+				lastLogin := time.Now().Format(time.RFC3339)
+				accessTokenExpiresAt := time.Now().Add(time.Duration(accessTokenValidInMinutes) * time.Minute).
+					Format(time.RFC3339)
+				refreshTokenExpiresAt := time.Now().Add(time.Duration(refreshTokenValidInMinutes) * time.Minute).
+					Format(time.RFC3339)
 				updateStatement := fmt.Sprintf("UPDATE users SET version = version + 1, last_login='%v', " +
 					"access_token='%v', access_token_expires_at='%v', refresh_token='%s', refresh_token_expires_at='%v' " +
-					"WHERE user_name='%s'", dt, accessToken, dt, refreshToken, dt, request.Username)
+					"WHERE user_name='%s'", lastLogin, accessToken, accessTokenExpiresAt, refreshToken, refreshTokenExpiresAt,
+					request.Username)
 				_, err = db.Exec(updateStatement)
 				if err != nil {
 					logger.Warn("an error  occured while updating db", zap.String("error", err.Error()))
