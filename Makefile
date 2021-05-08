@@ -1,3 +1,6 @@
+lint:
+	golangci-lint run --timeout 2m0s
+
 test:
 	go test ./...
 
