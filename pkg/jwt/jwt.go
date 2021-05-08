@@ -2,25 +2,20 @@ package jwt
 
 import (
 	"auth-service/pkg/config"
-	"auth-service/pkg/logging"
 	"crypto/rsa"
 	"github.com/dgrijalva/jwt-go"
-	"go.uber.org/zap"
 	"strings"
 	"time"
 )
 
 var (
 	signKey *rsa.PrivateKey
-	logger *zap.Logger
 	err error
 
 	privateKey, issuer string
 )
 
 func init() {
-	logger = logging.GetLogger()
-
 	issuer = config.GetStringEnv("ISSUER", "info@thevpnbeast.com")
 	privateKey = strings.Replace(config.GetStringEnv("PRIVATE_KEY", "-----BEGIN PRIVATE KEY-----\\nMIICdwIBADANBgkqhkiG" +
 		"9w0BAQEFAASCAmEwggJdAgEAAoGBANnmLifeLBsiXe/J\\n8O3ophHHaCfJ+EdAUYn7vArJTUtankCD3I8O3n+QM0KNsXzXd+eN6VmNm3bjLp" +
