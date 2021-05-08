@@ -174,7 +174,7 @@ func authenticateHandler() gin.HandlerFunc {
 			if encryptResponse.Status {
 				var datetime = time.Now()
 				dt := datetime.Format(time.RFC3339)
-				accessToken, err := jwt.GenerateAccessToken(request.Username)
+				accessToken, err := jwt.GenerateToken(request.Username, int32(accessTokenValidInMinutes))
 				if err != nil {
 					logger.Error("an error occured generating access token",
 						zap.String("error", err.Error()))
@@ -189,7 +189,7 @@ func authenticateHandler() gin.HandlerFunc {
 					return
 				}
 
-				refreshToken, err := jwt.GenerateRefreshToken(request.Username)
+				refreshToken, err := jwt.GenerateToken(request.Username, int32(refreshTokenValidInMinutes))
 				if err != nil {
 					logger.Error("an error occured generating refresh token",
 						zap.String("error", err.Error()))
