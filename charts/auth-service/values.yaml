@@ -5,7 +5,9 @@ deployment:
   image: vpnbeast/auth-service:0.0.11
   replicaCount: 1
   serverPort: 5000
-  managementEndpoint: /health/ping
+  metricPort: 5001
+  healthPort: 5002
+  healthEndpoint: /health
   ingressEndpoint: /auth-service
   environment:
     timezone: Europe/Istanbul

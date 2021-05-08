@@ -13,5 +13,11 @@ spec:
     - name: server-port
       port: {{ .Values.deployment.serverPort }}
       targetPort: {{ .Values.deployment.serverPort }}
+    - name: metric-port
+      port: {{ .Values.deployment.metricPort }}
+      targetPort: {{ .Values.deployment.metricPort }}
+    - name: health-port
+      port: {{ .Values.deployment.healthPort }}
+      targetPort: {{ .Values.deployment.healthPort }}
   selector:
     app: {{ .Values.deployment.name | quote }}

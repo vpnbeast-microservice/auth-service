@@ -32,23 +32,27 @@ spec:
           ports:
             - containerPort: {{ .Values.deployment.serverPort }}
               name: server-port
+            - containerPort: {{ .Values.deployment.metricPort }}
+              name: metric-port
+            - containerPort: {{ .Values.deployment.healthPort }}
+              name: health-port
           livenessProbe:
             failureThreshold: 3
             httpGet:
-              path: {{ .Values.deployment.managementEndpoint }}
-              port: {{ .Values.deployment.serverPort }}
+              path: {{ .Values.deployment.healthEndpoint }}
+              port: {{ .Values.deployment.healthPort }}
               scheme: HTTP
-            initialDelaySeconds: 60
+            initialDelaySeconds: 20
             periodSeconds: 10
             successThreshold: 1
             timeoutSeconds: 10
           readinessProbe:
             failureThreshold: 3
             httpGet:
-              path: {{ .Values.deployment.managementEndpoint }}
-              port: {{ .Values.deployment.serverPort }}
+              path: { { .Values.deployment.healthEndpoint } }
+              port: { { .Values.deployment.healthPort } }
               scheme: HTTP
-            initialDelaySeconds: 30
+            initialDelaySeconds: 10
             periodSeconds: 10
             successThreshold: 1
             timeoutSeconds: 10
