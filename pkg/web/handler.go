@@ -19,7 +19,11 @@ import (
 
 func pingHandler() gin.HandlerFunc {
 	return func(context *gin.Context) {
-		context.String(http.StatusOK, "pong")
+		context.JSON(http.StatusOK, gin.H{
+			"code" : http.StatusOK,
+			"message": "pong",
+			"timestamp": time.Now(),
+		})
 	}
 }
 
