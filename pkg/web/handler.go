@@ -2,13 +2,10 @@ package web
 
 import (
 	"auth-service/pkg/jwt"
-	"bytes"
 	"database/sql"
-	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
-	"io/ioutil"
 	"net/http"
 	"time"
 )
@@ -57,15 +54,17 @@ func authenticateHandler() gin.HandlerFunc {
 			context.Abort()
 			return
 		case nil:
-			postBody, err := json.Marshal(encryptRequest{
+			encryptReq := encryptRequest{
 				PlainText:     request.Password,
 				EncryptedText: result.EncryptedPassword,
-			})
+			}
+
+			encryptRes, err := encryptReq.encrypt(request.Password, result.EncryptedPassword)
 			if err != nil {
-				logger.Error("an error occured while marshalling request body", zap.String("error", err.Error()))
+				logger.Error("an error occured while making encryption request", zap.String("error", err.Error()))
 				context.JSON(http.StatusInternalServerError, authFailResponse{
 					Tag:          "authUser",
-					ErrorMessage: "Unknown error occured at the backend!",
+					ErrorMessage: "unknown error occured at the backend",
 					Status:       false,
 					HttpCode:     500,
 					Timestamp:    time.Now(),
@@ -74,61 +73,7 @@ func authenticateHandler() gin.HandlerFunc {
 				return
 			}
 
-			responseBody := bytes.NewBuffer(postBody)
-			resp, err := http.Post(encryptionServiceUrl, "application/json", responseBody)
-			if err != nil {
-				logger.Error("an error occured while making request to encryption-service",
-					zap.String("error", err.Error()))
-				context.JSON(http.StatusInternalServerError, authFailResponse{
-					Tag:          "authUser",
-					ErrorMessage: "Unknown error occured at the backend!",
-					Status:       false,
-					HttpCode:     500,
-					Timestamp:    time.Now(),
-				})
-				context.Abort()
-				return
-			}
-
-			defer func() {
-				err := resp.Body.Close()
-				if err != nil {
-					panic(err)
-				}
-			}()
-
-			body, err := ioutil.ReadAll(resp.Body)
-			if err != nil {
-				logger.Error("an error occured while reading response body", zap.String("error", err.Error()))
-				context.JSON(http.StatusInternalServerError, authFailResponse{
-					Tag:          "authUser",
-					ErrorMessage: "Unknown error occured at the backend!",
-					Status:       false,
-					HttpCode:     500,
-					Timestamp:    time.Now(),
-				})
-				context.Abort()
-				return
-			}
-
-			var encryptResponse encryptResponse
-			responseString := string(body)
-			err = json.Unmarshal([]byte(responseString), &encryptResponse)
-			if err != nil {
-				logger.Error("an error occured while unmarshalling response to struct",
-					zap.String("error", err.Error()))
-				context.JSON(http.StatusInternalServerError, authFailResponse{
-					Tag:          "authUser",
-					ErrorMessage: "Unknown error occured at the backend!",
-					Status:       false,
-					HttpCode:     500,
-					Timestamp:    time.Now(),
-				})
-				context.Abort()
-				return
-			}
-
-			if encryptResponse.Status {
+			if encryptRes.Status {
 				accessToken, err := jwt.GenerateToken(request.Username, int32(accessTokenValidInMinutes))
 				if err != nil {
 					logger.Error("an error occured generating access token",

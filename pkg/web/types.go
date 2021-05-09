@@ -1,6 +1,11 @@
 package web
 
 import (
+	"bytes"
+	"encoding/json"
+	"go.uber.org/zap"
+	"io/ioutil"
+	"net/http"
 	"time"
 )
 
@@ -63,16 +68,48 @@ type encryptRequest struct {
 	EncryptedText string `json:"encryptedText"`
 }
 
+func (req encryptRequest) encrypt(plainText, encrypted string) (encryptResponse, error) {
+	postBody, err := json.Marshal(encryptRequest{
+		PlainText:     plainText,
+		EncryptedText: encrypted,
+	})
+	if err != nil {
+		logger.Error("an error occured while marshalling request", zap.String("error", err.Error()))
+		return encryptResponse{}, err
+	}
+
+	responseBody := bytes.NewBuffer(postBody)
+	resp, err := http.Post(encryptionServiceUrl, "application/json", responseBody)
+	if err != nil {
+		logger.Error("an error occured while making remote request", zap.String("error", err.Error()))
+		return encryptResponse{}, err
+	}
+
+	defer func() {
+		err := resp.Body.Close()
+		if err != nil {
+			panic(err)
+		}
+	}()
+
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		logger.Error("an error occured while reading response", zap.String("error", err.Error()))
+		return encryptResponse{}, err
+	}
+
+	var response encryptResponse
+	responseString := string(body)
+	err = json.Unmarshal([]byte(responseString), &response)
+	if err != nil {
+		logger.Error("an error occured while unmarshaling response", zap.String("error", err.Error()))
+		return encryptResponse{}, err
+	}
+
+	return response, nil
+}
+
 type encryptResponse struct {
 	Tag string `json:"tag"`
 	Status bool `json:"status"`
 }
-
-/*type malformedRequest struct {
-	status int
-	msg    string
-}
-
-func (mr *malformedRequest) Error() string {
-	return mr.msg
-}*/
