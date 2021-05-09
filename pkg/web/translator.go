@@ -1,5 +1,55 @@
 package web
 
+import (
+	"github.com/gin-gonic/gin"
+	"github.com/go-playground/locales"
+	"github.com/go-playground/locales/en"
+	ut "github.com/go-playground/universal-translator"
+	"github.com/go-playground/validator/v10"
+	entranslations "github.com/go-playground/validator/v10/translations/en"
+)
+
+var (
+	translator locales.Translator
+	trans ut.Translator
+	uni *ut.UniversalTranslator
+	v *validator.Validate
+)
+
+func init() {
+	translator = en.New()
+	uni = ut.New(translator, translator)
+
+	var found bool
+	trans, found = uni.GetTranslator("en")
+	if !found {
+		panic("can not find translator")
+	}
+
+	v = validator.New()
+	err := entranslations.RegisterDefaultTranslations(v, trans)
+	if err != nil {
+		panic(err)
+	}
+}
+
+func isValidRequest(context *gin.Context, request *authRequest) (bool, []string) {
+	var errSlice []string
+	var err error
+	if err = context.ShouldBindJSON(request); err == nil {
+		if err = v.Struct(request); err != nil {
+			for _, e := range err.(validator.ValidationErrors) {
+				errSlice = append(errSlice, e.Translate(trans))
+			}
+			return false, errSlice
+		}
+		return true, errSlice
+	}
+
+	errSlice = append(errSlice, "not a valid JSON request!")
+	return false, errSlice
+}
+
 // https://github.com/go-playground/validator/blob/master/_examples/translations/main.go
 /*func translate() {
 	translator := en.New()

@@ -7,10 +7,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"github.com/go-playground/locales/en"
-	ut "github.com/go-playground/universal-translator"
-	"github.com/go-playground/validator/v10"
-	entranslations "github.com/go-playground/validator/v10/translations/en"
 	"go.uber.org/zap"
 	"io/ioutil"
 	"net/http"
@@ -31,54 +27,17 @@ func authenticateHandler() gin.HandlerFunc {
 	return func(context *gin.Context) {
 		var request authRequest
 
-		translator := en.New()
-		uni := ut.New(translator, translator)
-
-		trans, found := uni.GetTranslator("en")
-		if !found {
-			logger.Error("translator not found")
-			context.JSON(http.StatusBadRequest, errorResponse{
+		_, errSlice := isValidRequest(context, &request)
+		if len(errSlice) != 0 {
+			context.JSON(http.StatusBadRequest, validationErrorResponse{
 				Tag:          "authUser",
-				ErrorMessage: "unknown error occured at the backend",
+				ErrorMessage: errSlice,
 				Status:       false,
-				HttpCode:     500,
+				HttpCode:     400,
 				Timestamp:    time.Now(),
 			})
 			context.Abort()
 			return
-		}
-
-		v := validator.New()
-
-		if err := entranslations.RegisterDefaultTranslations(v, trans); err != nil {
-			logger.Error("can not register translation", zap.String("error", err.Error()))
-			context.JSON(http.StatusBadRequest, errorResponse{
-				Tag:          "authUser",
-				ErrorMessage: "unknown error occured at the backend",
-				Status:       false,
-				HttpCode:     500,
-				Timestamp:    time.Now(),
-			})
-			context.Abort()
-			return
-		}
-
-		if err := context.ShouldBindJSON(&request); err == nil {
-			if err := v.Struct(&request); err != nil {
-				var errSlice []string
-				for _, e := range err.(validator.ValidationErrors) {
-					errSlice = append(errSlice, e.Translate(trans))
-				}
-				context.JSON(http.StatusBadRequest, validationErrorResponse{
-					Tag:          "authUser",
-					ErrorMessage: errSlice,
-					Status:       false,
-					HttpCode:     400,
-					Timestamp:    time.Now(),
-				})
-				context.Abort()
-				return
-			}
 		}
 
 		result := selectResult{}
