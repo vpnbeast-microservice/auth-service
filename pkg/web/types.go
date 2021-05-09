@@ -55,14 +55,6 @@ type validationErrorResponse struct {
 	ErrorMessage []string `json:"errorMessage"`
 }
 
-type errorResponse struct {
-	Timestamp time.Time `json:"timestamp"`
-	HttpCode int `json:"httpCode"`
-	Tag string `json:"tag"`
-	Status bool `json:"status"`
-	ErrorMessage string `json:"error"`
-}
-
 type encryptRequest struct {
 	PlainText string `json:"plainText"`
 	EncryptedText string `json:"encryptedText"`
