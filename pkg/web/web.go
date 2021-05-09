@@ -16,6 +16,7 @@ var (
 	logger *zap.Logger
 	db *sql.DB
 	accessTokenValidInMinutes, refreshTokenValidInMinutes int
+	encryptionServiceUrl string
 )
 
 
@@ -25,6 +26,7 @@ func init() {
 
 	accessTokenValidInMinutes = config.GetIntEnv("ACCESS_TOKEN_VALID_IN_MINUTES", 60)
 	refreshTokenValidInMinutes = config.GetIntEnv("REFRESH_TOKEN_VALID_IN_MINUTES", 600)
+	encryptionServiceUrl = config.GetStringEnv("ENCRYPTION_SERVICE_URL", "http://localhost:8085/encryption-controller/check")
 }
 
 func registerHandlers(router *gin.Engine) {

@@ -75,8 +75,7 @@ func authenticateHandler() gin.HandlerFunc {
 			}
 
 			responseBody := bytes.NewBuffer(postBody)
-			resp, err := http.Post("http://localhost:8085/encryption-controller/check",
-				"application/json", responseBody)
+			resp, err := http.Post(encryptionServiceUrl, "application/json", responseBody)
 			if err != nil {
 				logger.Error("an error occured while making request to encryption-service",
 					zap.String("error", err.Error()))
