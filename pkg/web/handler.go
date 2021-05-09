@@ -22,9 +22,9 @@ func pingHandler() gin.HandlerFunc {
 
 func authenticateHandler() gin.HandlerFunc {
 	return func(context *gin.Context) {
-		var request authRequest
+		var authReq authRequest
 
-		_, errSlice := isValidRequest(context, &request)
+		_, errSlice := isValidRequest(context, &authReq)
 		if len(errSlice) != 0 {
 			context.JSON(http.StatusBadRequest, validationErrorResponse{
 				Tag:          "authUser",
@@ -37,13 +37,13 @@ func authenticateHandler() gin.HandlerFunc {
 			return
 		}
 
-		result := selectResult{}
+		selectRes := selectResult{}
 		sqlStatement := fmt.Sprintf("SELECT encrypted_password, user_name FROM users WHERE user_name='%s'",
-			request.Username)
+			authReq.Username)
 		row := db.QueryRow(sqlStatement)
-		switch err := row.Scan(&result.EncryptedPassword, &result.UserName); err {
+		switch err := row.Scan(&selectRes.EncryptedPassword, &selectRes.UserName); err {
 		case sql.ErrNoRows:
-			logger.Warn("no rows were returned!", zap.String("user", request.Username))
+			logger.Warn("no rows were returned!", zap.String("user", authReq.Username))
 			context.JSON(http.StatusBadRequest, authFailResponse{
 				Tag:          "authUser",
 				ErrorMessage: "User not found!",
@@ -55,11 +55,11 @@ func authenticateHandler() gin.HandlerFunc {
 			return
 		case nil:
 			encryptReq := encryptRequest{
-				PlainText:     request.Password,
-				EncryptedText: result.EncryptedPassword,
+				PlainText:     authReq.Password,
+				EncryptedText: selectRes.EncryptedPassword,
 			}
 
-			encryptRes, err := encryptReq.encrypt(request.Password, result.EncryptedPassword)
+			encryptRes, err := encryptReq.encrypt(authReq.Password, selectRes.EncryptedPassword)
 			if err != nil {
 				logger.Error("an error occured while making encryption request", zap.String("error", err.Error()))
 				context.JSON(http.StatusInternalServerError, authFailResponse{
@@ -74,7 +74,7 @@ func authenticateHandler() gin.HandlerFunc {
 			}
 
 			if encryptRes.Status {
-				accessToken, err := jwt.GenerateToken(request.Username, int32(accessTokenValidInMinutes))
+				accessToken, err := jwt.GenerateToken(authReq.Username, int32(accessTokenValidInMinutes))
 				if err != nil {
 					logger.Error("an error occured generating access token",
 						zap.String("error", err.Error()))
@@ -89,7 +89,7 @@ func authenticateHandler() gin.HandlerFunc {
 					return
 				}
 
-				refreshToken, err := jwt.GenerateToken(request.Username, int32(refreshTokenValidInMinutes))
+				refreshToken, err := jwt.GenerateToken(authReq.Username, int32(refreshTokenValidInMinutes))
 				if err != nil {
 					logger.Error("an error occured generating refresh token",
 						zap.String("error", err.Error()))
@@ -112,7 +112,7 @@ func authenticateHandler() gin.HandlerFunc {
 				updateStatement := fmt.Sprintf("UPDATE users SET version = version + 1, last_login='%v', " +
 					"access_token='%v', access_token_expires_at='%v', refresh_token='%s', refresh_token_expires_at='%v' " +
 					"WHERE user_name='%s'", lastLogin, accessToken, accessTokenExpiresAt, refreshToken, refreshTokenExpiresAt,
-					request.Username)
+					authReq.Username)
 				_, err = db.Exec(updateStatement)
 				if err != nil {
 					logger.Warn("an error  occured while updating db", zap.String("error", err.Error()))
@@ -127,18 +127,18 @@ func authenticateHandler() gin.HandlerFunc {
 					return
 				}
 
-				result := authSuccessResponse{}
+				authRes := authSuccessResponse{}
 				sqlStatement := fmt.Sprintf("SELECT uuid, id, encrypted_password, created_at, updated_at, version, " +
 					"user_name, email, last_login, enabled, email_verified, access_token, access_token_expires_at, " +
-					"refresh_token, refresh_token_expires_at FROM users WHERE user_name='%s'", request.Username)
+					"refresh_token, refresh_token_expires_at FROM users WHERE user_name='%s'", authReq.Username)
 				row := db.QueryRow(sqlStatement)
-				switch err := row.Scan(&result.Uuid, &result.Id, &result.EncryptedPassword, &result.CreatedAt, &result.UpdatedAt,
-					&result.Version, &result.Username, &result.Email, &result.LastLogin, &result.Enabled, &result.EmailVerified,
-					&result.AccessToken, &result.AccessTokenExpiresAt, &result.RefreshToken, &result.RefreshTokenExpiresAt); err {
+				switch err := row.Scan(&authRes.Uuid, &authRes.Id, &authRes.EncryptedPassword, &authRes.CreatedAt, &authRes.UpdatedAt,
+					&authRes.Version, &authRes.Username, &authRes.Email, &authRes.LastLogin, &authRes.Enabled, &authRes.EmailVerified,
+					&authRes.AccessToken, &authRes.AccessTokenExpiresAt, &authRes.RefreshToken, &authRes.RefreshTokenExpiresAt); err {
 				case nil:
-					result.Tag = "authUser"
-					result.EncryptedPassword = ""
-					context.JSON(http.StatusOK, result)
+					authRes.Tag = "authUser"
+					authRes.EncryptedPassword = ""
+					context.JSON(http.StatusOK, authRes)
 					context.Abort()
 					return
 				default:
