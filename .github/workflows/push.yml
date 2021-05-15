@@ -129,6 +129,7 @@ jobs:
   dockerize_and_commit:
     needs:
       - build
+      - fmt
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
