@@ -23,16 +23,9 @@ func pingHandler() gin.HandlerFunc {
 func authenticateHandler() gin.HandlerFunc {
 	return func(context *gin.Context) {
 		var authReq authRequest
-
 		_, errSlice := isValidRequest(context, &authReq)
 		if len(errSlice) != 0 {
-			context.JSON(http.StatusBadRequest, validationErrorResponse{
-				Tag:          "authUser",
-				ErrorMessage: errSlice,
-				Status:       false,
-				HttpCode:     400,
-				Timestamp:    time.Now(),
-			})
+			validationResponse(context, errSlice)
 			context.Abort()
 			return
 		}
@@ -44,13 +37,7 @@ func authenticateHandler() gin.HandlerFunc {
 		switch err := row.Scan(&selectRes.EncryptedPassword, &selectRes.UserName); err {
 		case sql.ErrNoRows:
 			logger.Warn("no rows were returned!", zap.String("user", authReq.Username))
-			context.JSON(http.StatusBadRequest, authFailResponse{
-				Tag:          "authUser",
-				ErrorMessage: "User not found!",
-				Status:       false,
-				HttpCode:     404,
-				Timestamp:    time.Now(),
-			})
+			errorResponse(context, http.StatusBadRequest, "User not found!")
 			context.Abort()
 			return
 		case nil:
@@ -62,13 +49,7 @@ func authenticateHandler() gin.HandlerFunc {
 			encryptRes, err := encryptReq.encrypt(authReq.Password, selectRes.EncryptedPassword)
 			if err != nil {
 				logger.Error("an error occured while making encryption request", zap.String("error", err.Error()))
-				context.JSON(http.StatusInternalServerError, authFailResponse{
-					Tag:          "authUser",
-					ErrorMessage: "unknown error occured at the backend",
-					Status:       false,
-					HttpCode:     500,
-					Timestamp:    time.Now(),
-				})
+				errorResponse(context, http.StatusInternalServerError, "unknown error occured at the backend")
 				context.Abort()
 				return
 			}
@@ -78,13 +59,7 @@ func authenticateHandler() gin.HandlerFunc {
 				if err != nil {
 					logger.Error("an error occured generating access token",
 						zap.String("error", err.Error()))
-					context.JSON(http.StatusInternalServerError, authFailResponse{
-						Tag:          "authUser",
-						ErrorMessage: "Unknown error occured at the backend!",
-						Status:       false,
-						HttpCode:     500,
-						Timestamp:    time.Now(),
-					})
+					errorResponse(context, http.StatusInternalServerError, "Unknown error occured at the backend!")
 					context.Abort()
 					return
 				}
@@ -93,13 +68,7 @@ func authenticateHandler() gin.HandlerFunc {
 				if err != nil {
 					logger.Error("an error occured generating refresh token",
 						zap.String("error", err.Error()))
-					context.JSON(http.StatusInternalServerError, authFailResponse{
-						Tag:          "authUser",
-						ErrorMessage: "Unknown error occured at the backend!",
-						Status:       false,
-						HttpCode:     500,
-						Timestamp:    time.Now(),
-					})
+					errorResponse(context, http.StatusInternalServerError, "Unknown error occured at the backend!")
 					context.Abort()
 					return
 				}
@@ -116,13 +85,7 @@ func authenticateHandler() gin.HandlerFunc {
 				_, err = db.Exec(updateStatement)
 				if err != nil {
 					logger.Warn("an error  occured while updating db", zap.String("error", err.Error()))
-					context.JSON(http.StatusBadRequest, authFailResponse{
-						Tag:          "authUser",
-						ErrorMessage: "Unknown error occured at the backend!",
-						Status:       false,
-						HttpCode:     500,
-						Timestamp:    time.Now(),
-					})
+					errorResponse(context, http.StatusInternalServerError, "Unknown error occured at the backend!")
 					context.Abort()
 					return
 				}
@@ -146,26 +109,14 @@ func authenticateHandler() gin.HandlerFunc {
 				}
 			} else {
 				logger.Error("password validation failed")
-				context.JSON(http.StatusBadRequest, authFailResponse{
-					Tag:          "authUser",
-					ErrorMessage: "Invalid password!",
-					Status:       false,
-					HttpCode:     400,
-					Timestamp:    time.Now(),
-				})
+				errorResponse(context, http.StatusBadRequest, "Invalid password!")
 				context.Abort()
 				return
 			}
 
 		default:
 			logger.Error("unknown error", zap.String("error", err.Error()))
-			context.JSON(http.StatusInternalServerError, authFailResponse{
-				Tag:          "authUser",
-				ErrorMessage: "unknown error occured at the backend",
-				Status:       false,
-				HttpCode:     500,
-				Timestamp:    time.Now(),
-			})
+			errorResponse(context, http.StatusInternalServerError, "unknown error occured at the backend")
 			context.Abort()
 			return
 		}
