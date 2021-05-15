@@ -35,6 +35,7 @@ func registerHandlers(router *gin.Engine) {
 	// router.Use(loggingMiddleware)
 }
 
+// InitServer initializes *http.Server with provided parameters
 func InitServer(router *gin.Engine, serverPort, writeTimeoutSeconds, readTimeoutSeconds int) *http.Server {
 	registerHandlers(router)
 	return &http.Server{

@@ -11,6 +11,7 @@ import (
 	"time"
 )
 
+// RunHealthProbe provides an endpoint, probes the database connection continuously
 func RunHealthProbe(router *mux.Router, db *sql.DB, healthCheckMaxTimeoutMin, healthPort int) {
 	router.Handle("/health", healthcheck.Handler(
 		healthcheck.WithTimeout(time.Duration(int32(healthCheckMaxTimeoutMin))*time.Second),

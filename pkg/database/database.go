@@ -4,7 +4,6 @@ import (
 	"auth-service/pkg/config"
 	"auth-service/pkg/logging"
 	"database/sql"
-	_ "github.com/go-sql-driver/mysql"
 	"github.com/gorilla/mux"
 	"go.uber.org/zap"
 	"time"
@@ -48,6 +47,7 @@ func initDatabase(dbDriver, dbUrl string, dbMaxOpenConn, dbMaxIdleConn, dbConnMa
 	return db
 }
 
+// GetDatabase returns the initialized *sql.DB instance
 func GetDatabase() *sql.DB {
 	return db
 }

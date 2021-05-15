@@ -7,6 +7,9 @@ fmt:
 vet:
 	go vet ./...
 
+ineffassign:
+	ineffassign ./...
+
 test:
 	go test ./...
 

@@ -35,6 +35,7 @@ func init() {
 	}
 }
 
+// GenerateToken generates JWT token with username and expiresAtInMinutes in RS256 signing method
 func GenerateToken(username string, expiresAtInMinutes int32) (string, error) {
 	t := jwt.New(jwt.GetSigningMethod("RS256"))
 	t.Claims = &jwt.StandardClaims{
@@ -47,7 +48,7 @@ func GenerateToken(username string, expiresAtInMinutes int32) (string, error) {
 	tokenString, err := t.SignedString(signKey)
 	if err != nil {
 		return "", err
-	} else {
-		return tokenString, nil
 	}
+
+	return tokenString, nil
 }

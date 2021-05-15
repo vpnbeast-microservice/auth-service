@@ -17,6 +17,7 @@ func init() {
 	logger = logging.GetLogger()
 }
 
+// RunMetricsServer provides an endpoint, exports prometheus metrics using prometheus client golang
 func RunMetricsServer(router *gin.Engine, metricsPort, writeTimeoutSeconds, readTimeoutSeconds int) {
 	metricServer := &http.Server{
 		Handler:      router,

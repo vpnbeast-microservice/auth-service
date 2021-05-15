@@ -13,6 +13,7 @@ func init() {
 	logger = logging.GetLogger()
 }
 
+// GetStringEnv gets the specific environment variables with default value, returns default value if variable not set
 func GetStringEnv(key, defaultValue string) string {
 	value := os.Getenv(key)
 	if len(value) == 0 {
@@ -21,6 +22,7 @@ func GetStringEnv(key, defaultValue string) string {
 	return value
 }
 
+// GetIntEnv gets the specific environment variables with default value, returns default value if variable not set
 func GetIntEnv(key string, defaultValue int) int {
 	value := os.Getenv(key)
 	if len(value) == 0 {
