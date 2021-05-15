@@ -13,7 +13,7 @@ import (
 
 func RunHealthProbe(router *mux.Router, db *sql.DB, healthCheckMaxTimeoutMin, healthPort int) {
 	router.Handle("/health", healthcheck.Handler(
-		healthcheck.WithTimeout(time.Duration(int32(healthCheckMaxTimeoutMin)) * time.Second),
+		healthcheck.WithTimeout(time.Duration(int32(healthCheckMaxTimeoutMin))*time.Second),
 		healthcheck.WithChecker(
 			"database", healthcheck.CheckerFunc(
 				func(ctx context.Context) error {
@@ -24,5 +24,5 @@ func RunHealthProbe(router *mux.Router, db *sql.DB, healthCheckMaxTimeoutMin, he
 	))
 
 	logger.Info("probing mysql", zap.Int("port", healthPort))
-	panic(http.ListenAndServe(fmt.Sprintf(":%d", healthPort) , router))
+	panic(http.ListenAndServe(fmt.Sprintf(":%d", healthPort), router))
 }

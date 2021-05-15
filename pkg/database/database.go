@@ -11,11 +11,11 @@ import (
 )
 
 var (
-	logger *zap.Logger
+	logger                                                                                   *zap.Logger
 	dbMaxOpenConn, dbMaxIdleConn, dbConnMaxLifetimeMin, healthCheckMaxTimeoutMin, healthPort int
-	dbUrl, dbDriver string
-	router *mux.Router
-	db *sql.DB
+	dbUrl, dbDriver                                                                          string
+	router                                                                                   *mux.Router
+	db                                                                                       *sql.DB
 )
 
 func init() {

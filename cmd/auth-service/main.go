@@ -13,8 +13,8 @@ import (
 
 var (
 	serverPort, metricsPort, writeTimeoutSeconds, readTimeoutSeconds int
-	logger *zap.Logger
-	db *sql.DB
+	logger                                                           *zap.Logger
+	db                                                               *sql.DB
 )
 
 func init() {
@@ -29,7 +29,7 @@ func init() {
 	readTimeoutSeconds = config.GetIntEnv("READ_TIMEOUT_SECONDS", 10)
 }
 
-func main()  {
+func main() {
 	defer func() {
 		err := logger.Sync()
 		if err != nil {

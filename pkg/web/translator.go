@@ -11,9 +11,9 @@ import (
 
 var (
 	translator locales.Translator
-	trans ut.Translator
-	uni *ut.UniversalTranslator
-	v *validator.Validate
+	trans      ut.Translator
+	uni        *ut.UniversalTranslator
+	v          *validator.Validate
 )
 
 func init() {

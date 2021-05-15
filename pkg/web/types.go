@@ -16,47 +16,47 @@ type authRequest struct {
 
 type selectResult struct {
 	EncryptedPassword string
-	UserName string
+	UserName          string
 }
 
 type authSuccessResponse struct {
-	Uuid string `json:"uuid"`
-	Id int64 `json:"id"`
-	EncryptedPassword string `json:"encryptedPassword,omitempty"`
-	CreatedAt string `json:"createdAt"`
-	UpdatedAt string `json:"updatedAt"`
-	Version int `json:"version"`
-	Username string `json:"username"`
-	Email string `json:"email"`
-	LastLogin time.Time `json:"lastLogin"`
-	Enabled bool `json:"enabled"`
-	EmailVerified bool `json:"emailVerified"`
-	Tag string `json:"tag"`
-	AccessToken string `json:"accessToken"`
-	AccessTokenExpiresAt time.Time `json:"accessTokenExpiresAt"`
-	RefreshToken string `json:"refreshToken"`
-	RefreshTokenExpiresAt string `json:"refreshTokenExpiresAt"`
+	Uuid                  string    `json:"uuid"`
+	Id                    int64     `json:"id"`
+	EncryptedPassword     string    `json:"encryptedPassword,omitempty"`
+	CreatedAt             string    `json:"createdAt"`
+	UpdatedAt             string    `json:"updatedAt"`
+	Version               int       `json:"version"`
+	Username              string    `json:"username"`
+	Email                 string    `json:"email"`
+	LastLogin             time.Time `json:"lastLogin"`
+	Enabled               bool      `json:"enabled"`
+	EmailVerified         bool      `json:"emailVerified"`
+	Tag                   string    `json:"tag"`
+	AccessToken           string    `json:"accessToken"`
+	AccessTokenExpiresAt  time.Time `json:"accessTokenExpiresAt"`
+	RefreshToken          string    `json:"refreshToken"`
+	RefreshTokenExpiresAt string    `json:"refreshTokenExpiresAt"`
 }
 
 // when user not found or auth failed
 type authFailResponse struct {
-	Tag string `json:"tag"`
-	ErrorMessage string `json:"errorMessage"`
-	Status bool `json:"status"`
-	HttpCode int `json:"httpCode"`
-	Timestamp time.Time `json:"timestamp"`
+	Tag          string    `json:"tag"`
+	ErrorMessage string    `json:"errorMessage"`
+	Status       bool      `json:"status"`
+	HttpCode     int       `json:"httpCode"`
+	Timestamp    time.Time `json:"timestamp"`
 }
 
 type validationErrorResponse struct {
-	Timestamp time.Time `json:"timestamp"`
-	HttpCode int `json:"httpCode"`
-	Tag string `json:"tag"`
-	Status bool `json:"status"`
-	ErrorMessage []string `json:"errorMessage"`
+	Timestamp    time.Time `json:"timestamp"`
+	HttpCode     int       `json:"httpCode"`
+	Tag          string    `json:"tag"`
+	Status       bool      `json:"status"`
+	ErrorMessage []string  `json:"errorMessage"`
 }
 
 type encryptRequest struct {
-	PlainText string `json:"plainText"`
+	PlainText     string `json:"plainText"`
 	EncryptedText string `json:"encryptedText"`
 }
 
@@ -66,14 +66,14 @@ func (req encryptRequest) encrypt(plainText, encrypted string) (encryptResponse,
 		EncryptedText: encrypted,
 	})
 	if err != nil {
-		logger.Error("an error occured while marshalling request", zap.String("error", err.Error()))
+		logger.Error("an error occurred while marshalling request", zap.String("error", err.Error()))
 		return encryptResponse{}, err
 	}
 
 	responseBody := bytes.NewBuffer(postBody)
 	resp, err := http.Post(encryptionServiceUrl, "application/json", responseBody)
 	if err != nil {
-		logger.Error("an error occured while making remote request", zap.String("error", err.Error()))
+		logger.Error("an error occurred while making remote request", zap.String("error", err.Error()))
 		return encryptResponse{}, err
 	}
 
@@ -86,7 +86,7 @@ func (req encryptRequest) encrypt(plainText, encrypted string) (encryptResponse,
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		logger.Error("an error occured while reading response", zap.String("error", err.Error()))
+		logger.Error("an error occurred while reading response", zap.String("error", err.Error()))
 		return encryptResponse{}, err
 	}
 
@@ -94,7 +94,7 @@ func (req encryptRequest) encrypt(plainText, encrypted string) (encryptResponse,
 	responseString := string(body)
 	err = json.Unmarshal([]byte(responseString), &response)
 	if err != nil {
-		logger.Error("an error occured while unmarshaling response", zap.String("error", err.Error()))
+		logger.Error("an error occurred while unmarshaling response", zap.String("error", err.Error()))
 		return encryptResponse{}, err
 	}
 
@@ -102,6 +102,6 @@ func (req encryptRequest) encrypt(plainText, encrypted string) (encryptResponse,
 }
 
 type encryptResponse struct {
-	Tag string `json:"tag"`
-	Status bool `json:"status"`
+	Tag    string `json:"tag"`
+	Status bool   `json:"status"`
 }

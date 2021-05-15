@@ -13,12 +13,11 @@ import (
 )
 
 var (
-	logger *zap.Logger
-	db *sql.DB
+	logger                                                *zap.Logger
+	db                                                    *sql.DB
 	accessTokenValidInMinutes, refreshTokenValidInMinutes int
-	encryptionServiceUrl string
+	encryptionServiceUrl                                  string
 )
-
 
 func init() {
 	logger = logging.GetLogger()
@@ -39,8 +38,8 @@ func registerHandlers(router *gin.Engine) {
 func InitServer(router *gin.Engine, serverPort, writeTimeoutSeconds, readTimeoutSeconds int) *http.Server {
 	registerHandlers(router)
 	return &http.Server{
-		Handler: router,
-		Addr: fmt.Sprintf(":%d", serverPort),
+		Handler:      router,
+		Addr:         fmt.Sprintf(":%d", serverPort),
 		WriteTimeout: time.Duration(int32(writeTimeoutSeconds)) * time.Second,
 		ReadTimeout:  time.Duration(int32(readTimeoutSeconds)) * time.Second,
 	}
