@@ -4,6 +4,7 @@ import (
 	"auth-service/pkg/config"
 	"auth-service/pkg/logging"
 	"database/sql"
+	_ "github.com/go-sql-driver/mysql"
 	"github.com/gorilla/mux"
 	"go.uber.org/zap"
 	"time"
