@@ -34,7 +34,7 @@ func GetIntEnv(key string, defaultValue int) int {
 func convertStringToInt(s string) int {
 	i, err := strconv.Atoi(s)
 	if err != nil {
-		logger.Warn("an error occured while converting from string to int. Setting it as zero",
+		logger.Warn("an error occurred while converting from string to int. Setting it as zero",
 			zap.String("error", err.Error()))
 		i = 0
 	}

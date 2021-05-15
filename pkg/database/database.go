@@ -37,7 +37,7 @@ func init() {
 func initDatabase(dbDriver, dbUrl string, dbMaxOpenConn, dbMaxIdleConn, dbConnMaxLifetimeMin int) *sql.DB {
 	db, err := sql.Open(dbDriver, dbUrl)
 	if err != nil {
-		logger.Fatal("fatal error occured while opening database connection", zap.String("error", err.Error()))
+		logger.Fatal("fatal error occurred while opening database connection", zap.String("error", err.Error()))
 	}
 	tuneDbPooling(db, dbMaxOpenConn, dbMaxIdleConn, dbConnMaxLifetimeMin)
 
