@@ -30,7 +30,7 @@ func init() {
 
 func registerHandlers(router *gin.Engine) {
 	router.GET("/health/ping", pingHandler())
-	router.POST("/users/authenticate", authenticateHandler())
+	router.POST("/auth/authenticate", authenticateHandler())
 	// TODO: request validation middleware
 	// router.Use(loggingMiddleware)
 }
