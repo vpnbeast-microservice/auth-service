@@ -1,10 +1,10 @@
 package main
 
 import (
-	"auth-service/pkg/config"
 	"auth-service/pkg/database"
 	"auth-service/pkg/logging"
 	"auth-service/pkg/metrics"
+	"auth-service/pkg/options"
 	"auth-service/pkg/web"
 	"database/sql"
 	"github.com/gin-gonic/gin"
@@ -12,21 +12,16 @@ import (
 )
 
 var (
-	serverPort, metricsPort, writeTimeoutSeconds, readTimeoutSeconds int
-	logger                                                           *zap.Logger
-	db                                                               *sql.DB
+	logger *zap.Logger
+	db     *sql.DB
+	opts   *options.AuthServiceOptions
 )
 
 func init() {
 	gin.SetMode(gin.ReleaseMode)
 	logger = logging.GetLogger()
 	db = database.GetDatabase()
-
-	// web server/metric server related variables
-	serverPort = config.GetIntEnv("SERVER_PORT", 5000)
-	metricsPort = config.GetIntEnv("METRICS_PORT", 5001)
-	writeTimeoutSeconds = config.GetIntEnv("WRITE_TIMEOUT_SECONDS", 10)
-	readTimeoutSeconds = config.GetIntEnv("READ_TIMEOUT_SECONDS", 10)
+	opts = options.GetAuthServiceOptions()
 }
 
 func main() {
@@ -45,9 +40,9 @@ func main() {
 	}()
 
 	router := gin.Default()
-	go metrics.RunMetricsServer(router, metricsPort, writeTimeoutSeconds, readTimeoutSeconds)
+	go metrics.RunMetricsServer(router)
 
-	server := web.InitServer(router, serverPort, writeTimeoutSeconds, readTimeoutSeconds)
-	logger.Info("web server is up and running", zap.Int("serverPort", serverPort))
+	server := web.InitServer(router)
+	logger.Info("web server is up and running", zap.Int("serverPort", opts.ServerPort))
 	panic(server.ListenAndServe())
 }

@@ -71,7 +71,7 @@ func (req encryptRequest) encrypt(plainText, encrypted string) (encryptResponse,
 	}
 
 	responseBody := bytes.NewBuffer(postBody)
-	resp, err := http.Post(encryptionServiceUrl, "application/json", responseBody)
+	resp, err := http.Post(opts.EncryptionServiceUrl, "application/json", responseBody)
 	if err != nil {
 		logger.Error("an error occurred while making remote request", zap.String("error", err.Error()))
 		return encryptResponse{}, err

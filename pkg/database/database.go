@@ -1,8 +1,8 @@
 package database
 
 import (
-	"auth-service/pkg/config"
 	"auth-service/pkg/logging"
+	"auth-service/pkg/options"
 	"database/sql"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gorilla/mux"
@@ -11,38 +11,26 @@ import (
 )
 
 var (
-	logger                                                                                   *zap.Logger
-	dbMaxOpenConn, dbMaxIdleConn, dbConnMaxLifetimeMin, healthCheckMaxTimeoutMin, healthPort int
-	dbUrl, dbDriver                                                                          string
-	router                                                                                   *mux.Router
-	db                                                                                       *sql.DB
+	logger *zap.Logger
+	router *mux.Router
+	db     *sql.DB
 )
 
 func init() {
 	logger = logging.GetLogger()
 	router = mux.NewRouter()
-
-	// database related variables
-	dbUrl = config.GetStringEnv("DB_URL", "spring:123asd456@tcp(127.0.0.1:3306)/vpnbeast?parseTime=true")
-	dbDriver = config.GetStringEnv("DB_DRIVER", "mysql")
-	healthPort = config.GetIntEnv("HEALTH_PORT", 5002)
-	dbMaxOpenConn = config.GetIntEnv("DB_MAX_OPEN_CONN", 25)
-	dbMaxIdleConn = config.GetIntEnv("DB_MAX_IDLE_CONN", 25)
-	dbConnMaxLifetimeMin = config.GetIntEnv("DB_CONN_MAX_LIFETIME_MIN", 5)
-	healthCheckMaxTimeoutMin = config.GetIntEnv("HEALTHCHECK_MAX_TIMEOUT_MIN", 5)
-
-	db = initDatabase(dbDriver, dbUrl, dbMaxOpenConn, dbMaxIdleConn, dbConnMaxLifetimeMin)
+	db = initDatabase(options.GetAuthServiceOptions())
 }
 
-func initDatabase(dbDriver, dbUrl string, dbMaxOpenConn, dbMaxIdleConn, dbConnMaxLifetimeMin int) *sql.DB {
-	db, err := sql.Open(dbDriver, dbUrl)
+func initDatabase(opts *options.AuthServiceOptions) *sql.DB {
+	db, err := sql.Open(opts.DbDriver, opts.DbUrl)
 	if err != nil {
 		logger.Fatal("fatal error occurred while opening database connection", zap.String("error", err.Error()))
 	}
-	tuneDbPooling(db, dbMaxOpenConn, dbMaxIdleConn, dbConnMaxLifetimeMin)
+	tuneDbPooling(db, opts.DbMaxOpenConn, opts.DbMaxIdleConn, opts.DbConnMaxLifetimeMin)
 
 	go func() {
-		RunHealthProbe(router, db, healthCheckMaxTimeoutMin, healthPort)
+		RunHealthProbe(router, db, opts.HealthCheckMaxTimeoutMin, opts.HealthPort)
 	}()
 
 	return db

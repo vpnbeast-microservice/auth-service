@@ -2,6 +2,7 @@ package metrics
 
 import (
 	"auth-service/pkg/logging"
+	"auth-service/pkg/options"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
@@ -11,22 +12,24 @@ import (
 
 var (
 	logger *zap.Logger
+	opts   *options.AuthServiceOptions
 )
 
 func init() {
+	opts = options.GetAuthServiceOptions()
 	logger = logging.GetLogger()
 }
 
 // RunMetricsServer provides an endpoint, exports prometheus metrics using prometheus client golang
-func RunMetricsServer(router *gin.Engine, metricsPort, writeTimeoutSeconds, readTimeoutSeconds int) {
+func RunMetricsServer(router *gin.Engine) {
 	metricServer := &http.Server{
 		Handler:      router,
-		Addr:         fmt.Sprintf(":%d", metricsPort),
-		WriteTimeout: time.Duration(int32(writeTimeoutSeconds)) * time.Second,
-		ReadTimeout:  time.Duration(int32(readTimeoutSeconds)) * time.Second,
+		Addr:         fmt.Sprintf(":%d", opts.MetricsPort),
+		WriteTimeout: time.Duration(int32(opts.WriteTimeoutSeconds)) * time.Second,
+		ReadTimeout:  time.Duration(int32(opts.ReadTimeoutSeconds)) * time.Second,
 	}
-	router.GET("/metrics", prometheusHandler())
+	router.GET(opts.MetricsEndpoint, prometheusHandler())
 
-	logger.Info("metric server is up and running", zap.Int("metricsPort", metricsPort))
+	logger.Info("metric server is up and running", zap.Int("metricsPort", opts.MetricsPort))
 	panic(metricServer.ListenAndServe())
 }

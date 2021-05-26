@@ -54,7 +54,7 @@ func authenticateHandler() gin.HandlerFunc {
 			}
 
 			if encryptRes.Status {
-				accessToken, err := jwt.GenerateToken(authReq.Username, int32(accessTokenValidInMinutes))
+				accessToken, err := jwt.GenerateToken(authReq.Username, int32(opts.AccessTokenValidInMinutes))
 				if err != nil {
 					logger.Error("an error occurred generating access token",
 						zap.String("error", err.Error()))
@@ -63,7 +63,7 @@ func authenticateHandler() gin.HandlerFunc {
 					return
 				}
 
-				refreshToken, err := jwt.GenerateToken(authReq.Username, int32(refreshTokenValidInMinutes))
+				refreshToken, err := jwt.GenerateToken(authReq.Username, int32(opts.RefreshTokenValidInMinutes))
 				if err != nil {
 					logger.Error("an error occurred generating refresh token",
 						zap.String("error", err.Error()))
@@ -73,9 +73,9 @@ func authenticateHandler() gin.HandlerFunc {
 				}
 
 				lastLogin := time.Now().Format(time.RFC3339)
-				accessTokenExpiresAt := time.Now().Add(time.Duration(accessTokenValidInMinutes) * time.Minute).
+				accessTokenExpiresAt := time.Now().Add(time.Duration(opts.AccessTokenValidInMinutes) * time.Minute).
 					Format(time.RFC3339)
-				refreshTokenExpiresAt := time.Now().Add(time.Duration(refreshTokenValidInMinutes) * time.Minute).
+				refreshTokenExpiresAt := time.Now().Add(time.Duration(opts.RefreshTokenValidInMinutes) * time.Minute).
 					Format(time.RFC3339)
 				updateStatement := fmt.Sprintf(sqlUpdateUser, lastLogin, accessToken, accessTokenExpiresAt,
 					refreshToken, refreshTokenExpiresAt, authReq.Username)
