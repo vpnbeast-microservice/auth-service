@@ -1,7 +1,20 @@
 package database
 
-import "testing"
+import (
+	"database/sql"
+	"testing"
+)
 
-func TestInitDatabase(t *testing.T) {
-	// TODO: implement
+func TestGetDatabase(t *testing.T) {
+	db, err := sql.Open("mysql", "root@/blog")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	defer func() {
+		err := db.Close()
+		if err != nil {
+			t.Fatal(err)
+		}
+	}()
 }
