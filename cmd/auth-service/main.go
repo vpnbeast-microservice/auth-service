@@ -6,14 +6,14 @@ import (
 	"auth-service/pkg/metrics"
 	"auth-service/pkg/options"
 	"auth-service/pkg/web"
-	"database/sql"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
+	"gorm.io/gorm"
 )
 
 var (
 	logger *zap.Logger
-	db     *sql.DB
+	db     *gorm.DB
 	opts   *options.AuthServiceOptions
 )
 
@@ -33,7 +33,12 @@ func main() {
 	}()
 
 	defer func() {
-		err := db.Close()
+		sqlDb, err := db.DB()
+		if err != nil {
+			panic(err)
+		}
+
+		err = sqlDb.Close()
 		if err != nil {
 			panic(err)
 		}

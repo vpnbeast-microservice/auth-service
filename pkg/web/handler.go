@@ -2,10 +2,10 @@ package web
 
 import (
 	"auth-service/pkg/jwt"
-	"database/sql"
-	"fmt"
+	"auth-service/pkg/types"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
+	"gorm.io/gorm"
 	"net/http"
 	"time"
 )
@@ -30,22 +30,21 @@ func authenticateHandler() gin.HandlerFunc {
 			return
 		}
 
-		selectRes := selectResult{}
-		sqlStatement := fmt.Sprintf(sqlSelectUsernamePass, authReq.Username)
-		row := db.QueryRow(sqlStatement)
-		switch err := row.Scan(&selectRes.EncryptedPassword, &selectRes.UserName); err {
-		case sql.ErrNoRows:
+		var user types.User
+		switch err := db.Where("user_name = ?", authReq.Username).First(&user).Error; err {
+		case gorm.ErrRecordNotFound:
 			logger.Warn("no rows were returned!", zap.String("user", authReq.Username))
 			errorResponse(context, http.StatusBadRequest, errUserNotFound)
 			context.Abort()
 			return
 		case nil:
+			logger.Info("", zap.Any("user", user))
 			encryptReq := encryptRequest{
 				PlainText:     authReq.Password,
-				EncryptedText: selectRes.EncryptedPassword,
+				EncryptedText: user.EncryptedPassword,
 			}
 
-			encryptRes, err := encryptReq.encrypt(authReq.Password, selectRes.EncryptedPassword)
+			encryptRes, err := encryptReq.encrypt(authReq.Password, user.EncryptedPassword)
 			if err != nil {
 				logger.Error("an error occurred while making encryption request", zap.String("error", err.Error()))
 				errorResponse(context, http.StatusInternalServerError, errUnknown)
@@ -72,35 +71,49 @@ func authenticateHandler() gin.HandlerFunc {
 					return
 				}
 
-				lastLogin := time.Now().Format(time.RFC3339)
-				accessTokenExpiresAt := time.Now().Add(time.Duration(opts.AccessTokenValidInMinutes) * time.Minute).
-					Format(time.RFC3339)
-				refreshTokenExpiresAt := time.Now().Add(time.Duration(opts.RefreshTokenValidInMinutes) * time.Minute).
-					Format(time.RFC3339)
-				updateStatement := fmt.Sprintf(sqlUpdateUser, lastLogin, accessToken, accessTokenExpiresAt,
-					refreshToken, refreshTokenExpiresAt, authReq.Username)
-				_, err = db.Exec(updateStatement)
-				if err != nil {
-					logger.Warn("an error  occurred while updating db", zap.String("error", err.Error()))
-					errorResponse(context, http.StatusInternalServerError, errUnknown)
-					context.Abort()
-					return
-				}
+				//lastLoginTime, _ := time.Parse(time.RFC3339, time.Now().String())
+				//user.LastLogin = lastLoginTime
+				//now := time.Now().Format(time.RFC3339)
+				//user.LastLogin = now
+				//user.UpdatedAt = now
+				user.AccessToken = accessToken
+				// accessTokenExpiresAtTime, _ := time.Parse(time.RFC3339, time.Now().Add(time.Duration(opts.AccessTokenValidInMinutes) * time.Minute).String())
+				//user.AccessTokenExpiresAt = time.Now().Add(time.Duration(opts.AccessTokenValidInMinutes) * time.Minute).Format(time.RFC3339)
+				user.RefreshToken = refreshToken
+				//user.RefreshTokenExpiresAt = time.Now().Add(time.Duration(opts.RefreshTokenValidInMinutes) * time.Minute).Format(time.RFC3339)
+				user.Version = user.Version + 1
 
-				authRes := authSuccessResponse{}
-				sqlStatement := fmt.Sprintf(sqlSelectUserAll, authReq.Username)
-				row := db.QueryRow(sqlStatement)
-				switch err := row.Scan(&authRes.Uuid, &authRes.Id, &authRes.EncryptedPassword, &authRes.CreatedAt, &authRes.UpdatedAt,
-					&authRes.Version, &authRes.Username, &authRes.Email, &authRes.LastLogin, &authRes.Enabled, &authRes.EmailVerified,
-					&authRes.AccessToken, &authRes.AccessTokenExpiresAt, &authRes.RefreshToken, &authRes.RefreshTokenExpiresAt); err {
+				// TODO: save all fields while fixed timestamp problem
+				// db.Save(&user)
+
+				switch err := db.Model(&user).Updates(map[string]interface{}{"access_token": accessToken,
+					"refresh_token": refreshToken, "version": user.Version}).Error; err {
 				case nil:
-					authRes.Tag = "authUser"
-					authRes.EncryptedPassword = ""
+					authRes := authSuccessResponse{
+						Uuid:          user.Uuid,
+						Id:            user.Id,
+						CreatedAt:     user.CreatedAt,
+						UpdatedAt:     user.UpdatedAt,
+						Version:       user.Version,
+						Username:      user.UserName,
+						Email:         user.Email,
+						LastLogin:     user.LastLogin,
+						Enabled:       user.Enabled,
+						EmailVerified: user.EmailVerified,
+						Tag:           "authUser",
+						AccessToken:   user.AccessToken,
+						// AccessTokenExpiresAt:  user.AccessTokenExpiresAt,
+						RefreshToken: user.RefreshToken,
+						// RefreshTokenExpiresAt: user.RefreshTokenExpiresAt,
+					}
 					context.JSON(http.StatusOK, authRes)
 					context.Abort()
 					return
 				default:
-
+					logger.Warn("an error  occurred while updating db", zap.String("error", err.Error()))
+					errorResponse(context, http.StatusInternalServerError, errUnknown)
+					context.Abort()
+					return
 				}
 			} else {
 				logger.Error("password validation failed")
@@ -108,12 +121,6 @@ func authenticateHandler() gin.HandlerFunc {
 				context.Abort()
 				return
 			}
-
-		default:
-			logger.Error("unknown error", zap.String("error", err.Error()))
-			errorResponse(context, http.StatusInternalServerError, errUnknown)
-			context.Abort()
-			return
 		}
 	}
 }

@@ -4,17 +4,17 @@ import (
 	"auth-service/pkg/database"
 	"auth-service/pkg/logging"
 	"auth-service/pkg/options"
-	"database/sql"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
+	"gorm.io/gorm"
 	"net/http"
 	"time"
 )
 
 var (
 	logger *zap.Logger
-	db     *sql.DB
+	db     *gorm.DB
 	opts   *options.AuthServiceOptions
 )
 

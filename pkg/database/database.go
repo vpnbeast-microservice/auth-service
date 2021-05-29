@@ -4,16 +4,17 @@ import (
 	"auth-service/pkg/logging"
 	"auth-service/pkg/options"
 	"database/sql"
-	_ "github.com/go-sql-driver/mysql"
 	"github.com/gorilla/mux"
 	"go.uber.org/zap"
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
 	"time"
 )
 
 var (
 	logger *zap.Logger
 	router *mux.Router
-	db     *sql.DB
+	db     *gorm.DB
 )
 
 func init() {
@@ -22,8 +23,22 @@ func init() {
 	db = initDatabase(options.GetAuthServiceOptions())
 }
 
-func initDatabase(opts *options.AuthServiceOptions) *sql.DB {
-	db, err := sql.Open(opts.DbDriver, opts.DbUrl)
+func initDatabase(opts *options.AuthServiceOptions) *gorm.DB {
+	db, err := gorm.Open(mysql.Open(opts.DbUrl), &gorm.Config{})
+	if err != nil {
+		logger.Fatal("fatal error occurred while opening database connection", zap.String("error", err.Error()))
+		return nil
+	}
+
+	sqlDB, err := db.DB()
+	if err != nil {
+		logger.Fatal("fatal error occurred while getting sql.DB from gorm.DB", zap.String("error", err.Error()))
+		return nil
+	}
+
+	tuneDbPooling(sqlDB, opts.DbMaxOpenConn, opts.DbMaxIdleConn, opts.DbConnMaxLifetimeMin)
+
+	/*db, err := sql.Open(opts.DbDriver, opts.DbUrl)
 	if err != nil {
 		logger.Fatal("fatal error occurred while opening database connection", zap.String("error", err.Error()))
 	}
@@ -33,11 +48,13 @@ func initDatabase(opts *options.AuthServiceOptions) *sql.DB {
 		RunHealthProbe(router, db, opts.HealthCheckMaxTimeoutMin, opts.HealthPort)
 	}()
 
+	return db*/
+
 	return db
 }
 
 // GetDatabase returns the initialized *sql.DB instance
-func GetDatabase() *sql.DB {
+func GetDatabase() *gorm.DB {
 	return db
 }
 

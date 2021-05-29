@@ -20,22 +20,21 @@ type selectResult struct {
 }
 
 type authSuccessResponse struct {
-	Uuid                  string    `json:"uuid"`
-	Id                    int64     `json:"id"`
-	EncryptedPassword     string    `json:"encryptedPassword,omitempty"`
-	CreatedAt             string    `json:"createdAt"`
-	UpdatedAt             string    `json:"updatedAt"`
-	Version               int       `json:"version"`
-	Username              string    `json:"username"`
-	Email                 string    `json:"email"`
-	LastLogin             time.Time `json:"lastLogin"`
-	Enabled               bool      `json:"enabled"`
-	EmailVerified         bool      `json:"emailVerified"`
-	Tag                   string    `json:"tag"`
-	AccessToken           string    `json:"accessToken"`
-	AccessTokenExpiresAt  time.Time `json:"accessTokenExpiresAt"`
-	RefreshToken          string    `json:"refreshToken"`
-	RefreshTokenExpiresAt string    `json:"refreshTokenExpiresAt"`
+	Uuid                  string `json:"uuid"`
+	Id                    int    `json:"id"`
+	CreatedAt             string `json:"createdAt"`
+	UpdatedAt             string `json:"updatedAt"`
+	Version               int    `json:"version"`
+	Username              string `json:"username"`
+	Email                 string `json:"email"`
+	LastLogin             string `json:"lastLogin"`
+	Enabled               bool   `json:"enabled"`
+	EmailVerified         bool   `json:"emailVerified"`
+	Tag                   string `json:"tag"`
+	AccessToken           string `json:"accessToken"`
+	AccessTokenExpiresAt  string `json:"accessTokenExpiresAt"`
+	RefreshToken          string `json:"refreshToken"`
+	RefreshTokenExpiresAt string `json:"refreshTokenExpiresAt"`
 }
 
 // when user not found or auth failed
