@@ -14,11 +14,6 @@ type authRequest struct {
 	Password string `json:"password" validate:"required,min=3,max=16"`
 }
 
-type selectResult struct {
-	EncryptedPassword string
-	UserName          string
-}
-
 type authSuccessResponse struct {
 	Uuid                       string `json:"uuid"`
 	Id                         int    `json:"id"`

@@ -37,18 +37,9 @@ func initDatabase(opts *options.AuthServiceOptions) *gorm.DB {
 	}
 
 	tuneDbPooling(sqlDB, opts.DbMaxOpenConn, opts.DbMaxIdleConn, opts.DbConnMaxLifetimeMin)
-
-	/*db, err := sql.Open(opts.DbDriver, opts.DbUrl)
-	if err != nil {
-		logger.Fatal("fatal error occurred while opening database connection", zap.String("error", err.Error()))
-	}
-	tuneDbPooling(db, opts.DbMaxOpenConn, opts.DbMaxIdleConn, opts.DbConnMaxLifetimeMin)
-
 	go func() {
-		RunHealthProbe(router, db, opts.HealthCheckMaxTimeoutMin, opts.HealthPort)
+		RunHealthProbe(router, sqlDB, opts.HealthCheckMaxTimeoutMin, opts.HealthPort)
 	}()
-
-	return db*/
 
 	return db
 }
