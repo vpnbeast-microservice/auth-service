@@ -74,7 +74,7 @@ func (asc *AuthServiceOptions) initOptions() {
 	asc.AccessTokenValidInMinutes = getIntEnv("ACCESS_TOKEN_VALID_IN_MINUTES", 60)
 	asc.RefreshTokenValidInMinutes = getIntEnv("REFRESH_TOKEN_VALID_IN_MINUTES", 600)
 	asc.EncryptionServiceUrl = getStringEnv("ENCRYPTION_SERVICE_URL", "http://localhost:8085/encryption-controller/check")
-	asc.DbUrl = getStringEnv("DB_URL", "spring:123asd456@tcp(127.0.0.1:3306)/vpnbeast?parseTime=true")
+	asc.DbUrl = getStringEnv("DB_URL", "spring:123asd456@tcp(127.0.0.1:3306)/vpnbeast?parseTime=true&loc=Europe%2FIstanbul")
 	asc.DbDriver = getStringEnv("DB_DRIVER", "mysql")
 	asc.HealthPort = getIntEnv("HEALTH_PORT", 5002)
 	asc.DbMaxOpenConn = getIntEnv("DB_MAX_OPEN_CONN", 25)

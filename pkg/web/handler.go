@@ -2,7 +2,7 @@ package web
 
 import (
 	"auth-service/pkg/jwt"
-	"auth-service/pkg/types"
+	"auth-service/pkg/model"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
@@ -30,7 +30,7 @@ func authenticateHandler() gin.HandlerFunc {
 			return
 		}
 
-		var user types.User
+		var user model.User
 		switch err := db.Where("user_name = ?", authReq.Username).First(&user).Error; err {
 		case gorm.ErrRecordNotFound:
 			logger.Warn("no rows were returned!", zap.String("user", authReq.Username))
@@ -71,40 +71,35 @@ func authenticateHandler() gin.HandlerFunc {
 					return
 				}
 
-				//lastLoginTime, _ := time.Parse(time.RFC3339, time.Now().String())
-				//user.LastLogin = lastLoginTime
-				//now := time.Now().Format(time.RFC3339)
-				//user.LastLogin = now
-				//user.UpdatedAt = now
+				now := time.Now().Format(time.RFC3339)
+				user.LastLogin = now
+				user.UpdatedAt = now
 				user.AccessToken = accessToken
-				// accessTokenExpiresAtTime, _ := time.Parse(time.RFC3339, time.Now().Add(time.Duration(opts.AccessTokenValidInMinutes) * time.Minute).String())
-				//user.AccessTokenExpiresAt = time.Now().Add(time.Duration(opts.AccessTokenValidInMinutes) * time.Minute).Format(time.RFC3339)
+				user.AccessTokenExpiresAt = time.Now().Add(time.Duration(opts.AccessTokenValidInMinutes) * time.Minute).Format(time.RFC3339)
 				user.RefreshToken = refreshToken
-				//user.RefreshTokenExpiresAt = time.Now().Add(time.Duration(opts.RefreshTokenValidInMinutes) * time.Minute).Format(time.RFC3339)
+				user.RefreshTokenExpiresAt = time.Now().Add(time.Duration(opts.RefreshTokenValidInMinutes) * time.Minute).Format(time.RFC3339)
 				user.Version = user.Version + 1
 
-				// TODO: save all fields while fixed timestamp problem
-				// db.Save(&user)
-
-				switch err := db.Model(&user).Updates(map[string]interface{}{"access_token": accessToken,
-					"refresh_token": refreshToken, "version": user.Version}).Error; err {
+				switch err := db.Save(&user).Error; err {
 				case nil:
 					authRes := authSuccessResponse{
-						Uuid:          user.Uuid,
-						Id:            user.Id,
-						CreatedAt:     user.CreatedAt,
-						UpdatedAt:     user.UpdatedAt,
-						Version:       user.Version,
-						Username:      user.UserName,
-						Email:         user.Email,
-						LastLogin:     user.LastLogin,
-						Enabled:       user.Enabled,
-						EmailVerified: user.EmailVerified,
-						Tag:           "authUser",
-						AccessToken:   user.AccessToken,
-						// AccessTokenExpiresAt:  user.AccessTokenExpiresAt,
-						RefreshToken: user.RefreshToken,
-						// RefreshTokenExpiresAt: user.RefreshTokenExpiresAt,
+						Uuid:                       user.Uuid,
+						Id:                         user.Id,
+						CreatedAt:                  user.CreatedAt,
+						UpdatedAt:                  user.UpdatedAt,
+						Version:                    user.Version,
+						Username:                   user.UserName,
+						Email:                      user.Email,
+						LastLogin:                  user.LastLogin,
+						Enabled:                    user.Enabled,
+						EmailVerified:              user.EmailVerified,
+						Tag:                        "authUser",
+						AccessToken:                user.AccessToken,
+						AccessTokenExpiresAt:       user.AccessTokenExpiresAt,
+						RefreshToken:               user.RefreshToken,
+						RefreshTokenExpiresAt:      user.RefreshTokenExpiresAt,
+						VerificationCodeCreatedAt:  user.VerificationCodeCreatedAt,
+						VerificationCodeVerifiedAt: user.VerificationCodeVerifiedAt,
 					}
 					context.JSON(http.StatusOK, authRes)
 					context.Abort()
