@@ -1,6 +1,7 @@
 package web
 
 import (
+	"auth-service/pkg/model"
 	"bytes"
 	"encoding/json"
 	"go.uber.org/zap"
@@ -15,23 +16,24 @@ type authRequest struct {
 }
 
 type authSuccessResponse struct {
-	Uuid                       string `json:"uuid"`
-	Id                         int    `json:"id"`
-	CreatedAt                  string `json:"createdAt"`
-	UpdatedAt                  string `json:"updatedAt"`
-	Version                    int    `json:"version"`
-	Username                   string `json:"username"`
-	Email                      string `json:"email"`
-	LastLogin                  string `json:"lastLogin"`
-	Enabled                    bool   `json:"enabled"`
-	EmailVerified              bool   `json:"emailVerified"`
-	Tag                        string `json:"tag"`
-	AccessToken                string `json:"accessToken"`
-	AccessTokenExpiresAt       string `json:"accessTokenExpiresAt"`
-	RefreshToken               string `json:"refreshToken"`
-	RefreshTokenExpiresAt      string `json:"refreshTokenExpiresAt"`
-	VerificationCodeCreatedAt  string `json:"VerificationCodeCreatedAt"`
-	VerificationCodeVerifiedAt string `json:"VerificationCodeVerifiedAt"`
+	Uuid                       string        `json:"uuid"`
+	Id                         uint          `json:"id"`
+	CreatedAt                  string        `json:"createdAt"`
+	UpdatedAt                  string        `json:"updatedAt"`
+	Version                    uint          `json:"version"`
+	Username                   string        `json:"username"`
+	Email                      string        `json:"email"`
+	LastLogin                  string        `json:"lastLogin"`
+	Enabled                    bool          `json:"enabled"`
+	EmailVerified              bool          `json:"emailVerified"`
+	Tag                        string        `json:"tag"`
+	AccessToken                string        `json:"accessToken"`
+	AccessTokenExpiresAt       string        `json:"accessTokenExpiresAt"`
+	RefreshToken               string        `json:"refreshToken"`
+	RefreshTokenExpiresAt      string        `json:"refreshTokenExpiresAt"`
+	VerificationCodeCreatedAt  string        `json:"verificationCodeCreatedAt"`
+	VerificationCodeVerifiedAt string        `json:"verificationCodeVerifiedAt"`
+	Roles                      []*model.Role `json:"roles"`
 }
 
 // when user not found or auth failed

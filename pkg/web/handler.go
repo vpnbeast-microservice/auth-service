@@ -31,14 +31,15 @@ func authenticateHandler() gin.HandlerFunc {
 		}
 
 		var user model.User
-		switch err := db.Where("user_name = ?", authReq.Username).First(&user).Error; err {
+		switch err := db.Preload("Roles").Where("user_name = ?", authReq.Username).First(&user).Error; err {
+		// switch err := db.Where("user_name = ?", authReq.Username).First(&user).Error; err {
 		case gorm.ErrRecordNotFound:
 			logger.Warn("no rows were returned!", zap.String("user", authReq.Username))
 			errorResponse(context, http.StatusBadRequest, errUserNotFound)
 			context.Abort()
 			return
 		case nil:
-			logger.Info("", zap.Any("user", user))
+			// logger.Info("", zap.Any("role of user", user.Roles))
 			encryptReq := encryptRequest{
 				PlainText:     authReq.Password,
 				EncryptedText: user.EncryptedPassword,
@@ -52,8 +53,14 @@ func authenticateHandler() gin.HandlerFunc {
 				return
 			}
 
+			var roles []string
+			for _, v := range user.Roles {
+				logger.Info("appending role to roles", zap.String("role", v.Name))
+				roles = append(roles, v.Name)
+			}
+
 			if encryptRes.Status {
-				accessToken, err := jwt.GenerateToken(authReq.Username, int32(opts.AccessTokenValidInMinutes))
+				accessToken, err := jwt.GenerateToken(authReq.Username, roles, int32(opts.AccessTokenValidInMinutes))
 				if err != nil {
 					logger.Error("an error occurred generating access token",
 						zap.String("error", err.Error()))
@@ -62,7 +69,7 @@ func authenticateHandler() gin.HandlerFunc {
 					return
 				}
 
-				refreshToken, err := jwt.GenerateToken(authReq.Username, int32(opts.RefreshTokenValidInMinutes))
+				refreshToken, err := jwt.GenerateToken(authReq.Username, roles, int32(opts.RefreshTokenValidInMinutes))
 				if err != nil {
 					logger.Error("an error occurred generating refresh token",
 						zap.String("error", err.Error()))
@@ -100,6 +107,7 @@ func authenticateHandler() gin.HandlerFunc {
 						RefreshTokenExpiresAt:      user.RefreshTokenExpiresAt,
 						VerificationCodeCreatedAt:  user.VerificationCodeCreatedAt,
 						VerificationCodeVerifiedAt: user.VerificationCodeVerifiedAt,
+						Roles:                      user.Roles,
 					}
 					context.JSON(http.StatusOK, authRes)
 					context.Abort()

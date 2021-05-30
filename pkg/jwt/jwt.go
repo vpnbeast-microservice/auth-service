@@ -23,13 +23,16 @@ func init() {
 }
 
 // GenerateToken generates JWT token with username and expiresAtInMinutes in RS256 signing method
-func GenerateToken(username string, expiresAtInMinutes int32) (string, error) {
+func GenerateToken(username string, roles []string, expiresAtInMinutes int32) (string, error) {
 	t := jwt.New(jwt.GetSigningMethod("RS256"))
-	t.Claims = &jwt.StandardClaims{
-		ExpiresAt: time.Now().Add(time.Duration(expiresAtInMinutes) * time.Minute).Unix(),
-		Issuer:    opts.Issuer,
-		Subject:   username,
-		IssuedAt:  time.Now().Unix(),
+	t.Claims = &VpnbeastClaim{
+		Roles: roles,
+		StandardClaims: jwt.StandardClaims{
+			ExpiresAt: time.Now().Add(time.Duration(expiresAtInMinutes) * time.Minute).Unix(),
+			Issuer:    opts.Issuer,
+			Subject:   username,
+			IssuedAt:  time.Now().Unix(),
+		},
 	}
 
 	tokenString, err := t.SignedString(signKey)
@@ -39,3 +42,5 @@ func GenerateToken(username string, expiresAtInMinutes int32) (string, error) {
 
 	return tokenString, nil
 }
+
+// if you need to validate, check https://betterprogramming.pub/hands-on-with-jwt-in-golang-8c986d1bb4c0
