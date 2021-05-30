@@ -43,4 +43,9 @@ func GenerateToken(username string, roles []string, expiresAtInMinutes int32) (s
 	return tokenString, nil
 }
 
-// if you need to validate, check https://betterprogramming.pub/hands-on-with-jwt-in-golang-8c986d1bb4c0
+// ValidateToken validates JWT token by checking if issuer is registered user, expiration time not passed etc
+func ValidateToken(token string) (bool, error) {
+	// TODO: implement
+	// check https://betterprogramming.pub/hands-on-with-jwt-in-golang-8c986d1bb4c0
+	return false, nil
+}
