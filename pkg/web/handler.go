@@ -25,7 +25,11 @@ func userHandler() gin.HandlerFunc {
 		var userReq userRequest
 		_, errSlice := isValidRequest(context, &userReq)
 		if len(errSlice) != 0 {
-			validationResponse(context, "getUser", errSlice)
+			userRes := userResponse{
+				Tag: "getUser",
+				Status: false,
+			}
+			context.JSON(http.StatusBadRequest, userRes)
 			context.Abort()
 			return
 		}
@@ -35,7 +39,11 @@ func userHandler() gin.HandlerFunc {
 		// switch err := db.Where("user_name = ?", authReq.Username).First(&user).Error; err {
 		case gorm.ErrRecordNotFound:
 			logger.Warn("no rows were returned!", zap.String("user", userReq.Username))
-			errorResponse(context, "getUser", http.StatusNotFound, errUserNotFound)
+			userRes := userResponse{
+				Tag: "getUser",
+				Status: false,
+			}
+			context.JSON(http.StatusNotFound, userRes)
 			context.Abort()
 			return
 		case nil:
