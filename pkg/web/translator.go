@@ -33,7 +33,7 @@ func init() {
 	}
 }
 
-func isValidRequest(context *gin.Context, request *authRequest) (bool, []string) {
+func isValidRequest(context *gin.Context, request interface{}) (bool, []string) {
 	var errSlice []string
 	var err error
 	if err = context.ShouldBindJSON(request); err == nil {

@@ -53,6 +53,15 @@ type validationErrorResponse struct {
 	ErrorMessage []string  `json:"errorMessage"`
 }
 
+type userRequest struct {
+	Username string `json:"userName" validate:"required,min=3,max=16"`
+}
+
+type userResponse struct {
+	Tag    string `json:"tag"`
+	Status bool   `json:"status"`
+}
+
 type encryptRequest struct {
 	PlainText     string `json:"plainText"`
 	EncryptedText string `json:"encryptedText"`

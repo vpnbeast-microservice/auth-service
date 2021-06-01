@@ -20,12 +20,42 @@ func pingHandler() gin.HandlerFunc {
 	}
 }
 
+func userHandler() gin.HandlerFunc {
+	return func(context *gin.Context) {
+		var userReq userRequest
+		_, errSlice := isValidRequest(context, &userReq)
+		if len(errSlice) != 0 {
+			validationResponse(context, "getUser", errSlice)
+			context.Abort()
+			return
+		}
+
+		var user model.User
+		switch err := db.Where("user_name = ?", userReq.Username).First(&user).Error; err {
+		// switch err := db.Where("user_name = ?", authReq.Username).First(&user).Error; err {
+		case gorm.ErrRecordNotFound:
+			logger.Warn("no rows were returned!", zap.String("user", userReq.Username))
+			errorResponse(context, "getUser", http.StatusNotFound, errUserNotFound)
+			context.Abort()
+			return
+		case nil:
+			userRes := userResponse{
+				Tag: "getUser",
+				Status: true,
+			}
+			context.JSON(http.StatusOK, userRes)
+			context.Abort()
+			return
+		}
+	}
+}
+
 func authenticateHandler() gin.HandlerFunc {
 	return func(context *gin.Context) {
 		var authReq authRequest
 		_, errSlice := isValidRequest(context, &authReq)
 		if len(errSlice) != 0 {
-			validationResponse(context, errSlice)
+			validationResponse(context, "authUser", errSlice)
 			context.Abort()
 			return
 		}
@@ -35,7 +65,7 @@ func authenticateHandler() gin.HandlerFunc {
 		// switch err := db.Where("user_name = ?", authReq.Username).First(&user).Error; err {
 		case gorm.ErrRecordNotFound:
 			logger.Warn("no rows were returned!", zap.String("user", authReq.Username))
-			errorResponse(context, http.StatusBadRequest, errUserNotFound)
+			errorResponse(context, "authUser", http.StatusNotFound, errUserNotFound)
 			context.Abort()
 			return
 		case nil:
@@ -48,7 +78,7 @@ func authenticateHandler() gin.HandlerFunc {
 			encryptRes, err := encryptReq.encrypt(authReq.Password, user.EncryptedPassword)
 			if err != nil {
 				logger.Error("an error occurred while making encryption request", zap.String("error", err.Error()))
-				errorResponse(context, http.StatusInternalServerError, errUnknown)
+				errorResponse(context, "authUser", http.StatusInternalServerError, errUnknown)
 				context.Abort()
 				return
 			}
@@ -64,7 +94,7 @@ func authenticateHandler() gin.HandlerFunc {
 				if err != nil {
 					logger.Error("an error occurred generating access token",
 						zap.String("error", err.Error()))
-					errorResponse(context, http.StatusInternalServerError, errUnknown)
+					errorResponse(context, "authUser", http.StatusInternalServerError, errUnknown)
 					context.Abort()
 					return
 				}
@@ -73,7 +103,7 @@ func authenticateHandler() gin.HandlerFunc {
 				if err != nil {
 					logger.Error("an error occurred generating refresh token",
 						zap.String("error", err.Error()))
-					errorResponse(context, http.StatusInternalServerError, errUnknown)
+					errorResponse(context, "authUser", http.StatusInternalServerError, errUnknown)
 					context.Abort()
 					return
 				}
@@ -114,13 +144,13 @@ func authenticateHandler() gin.HandlerFunc {
 					return
 				default:
 					logger.Warn("an error  occurred while updating db", zap.String("error", err.Error()))
-					errorResponse(context, http.StatusInternalServerError, errUnknown)
+					errorResponse(context, "authUser", http.StatusInternalServerError, errUnknown)
 					context.Abort()
 					return
 				}
 			} else {
 				logger.Error("password validation failed")
-				errorResponse(context, http.StatusBadRequest, errInvalidPass)
+				errorResponse(context, "authUser", http.StatusBadRequest, errInvalidPass)
 				context.Abort()
 				return
 			}

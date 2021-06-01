@@ -6,9 +6,9 @@ import (
 	"time"
 )
 
-func validationResponse(ctx *gin.Context, errSlice []string) {
+func validationResponse(ctx *gin.Context, tag string, errSlice []string) {
 	ctx.JSON(http.StatusBadRequest, validationErrorResponse{
-		Tag:          "authUser",
+		Tag:          tag,
 		ErrorMessage: errSlice,
 		Status:       false,
 		HttpCode:     http.StatusBadRequest,
@@ -16,9 +16,9 @@ func validationResponse(ctx *gin.Context, errSlice []string) {
 	})
 }
 
-func errorResponse(ctx *gin.Context, code int, err string) {
+func errorResponse(ctx *gin.Context, tag string, code int, err string) {
 	ctx.JSON(code, authFailResponse{
-		Tag:          "authUser",
+		Tag:          tag,
 		ErrorMessage: err,
 		Status:       false,
 		HttpCode:     code,
