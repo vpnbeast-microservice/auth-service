@@ -5,7 +5,6 @@ import (
 	"crypto/rsa"
 	"errors"
 	"github.com/dgrijalva/jwt-go"
-	"log"
 	"time"
 )
 
@@ -62,20 +61,19 @@ func ValidateToken(signedToken string) (string, []string, error, int) {
 		})
 
 	if err != nil {
-		log.Println(err.Error())
-		return "", roles, err, 500
+		return "", roles, err, 401
 	}
 
 	claims, ok := token.Claims.(*VpnbeastClaim)
 	if !ok {
-		err = errors.New("could not parse claims")
+		err = errors.New("an error occured while parsing token claims")
 		return "", roles, err, 500
 	}
 
-	if claims.ExpiresAt < time.Now().Local().Unix() {
+	/*if claims.ExpiresAt < time.Now().Local().Unix() {
 		err = errors.New("jwt is already expired")
 		return "", roles, err, 401
-	}
+	}*/
 
 	return claims.Subject, claims.Roles, nil, 200
 }

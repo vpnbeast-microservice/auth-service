@@ -22,18 +22,12 @@ func pingHandler() gin.HandlerFunc {
 
 func userHandler() gin.HandlerFunc {
 	return func(context *gin.Context) {
-		var userReq userRequest
-		_, errSlice := isValidRequest(context, &userReq)
-		if len(errSlice) != 0 {
-			userRes := userResponse{
-				Tag: "getUser",
-				Status: false,
-			}
-			context.JSON(http.StatusBadRequest, userRes)
-			context.Abort()
+		ok, req := validateJsonRequest(context)
+		if !ok {
 			return
 		}
 
+		userReq := req.(userRequest)
 		var user model.User
 		switch err := db.Where("user_name = ?", userReq.Username).First(&user).Error; err {
 		// switch err := db.Where("user_name = ?", authReq.Username).First(&user).Error; err {
@@ -62,22 +56,12 @@ func userHandler() gin.HandlerFunc {
 func validateHandler() gin.HandlerFunc {
 	// TODO: refactor
 	return func(context *gin.Context) {
-		logger.Info("request received")
-		var validateReq validateRequest
-		_, errSlice := isValidRequest(context, &validateReq)
-		if len(errSlice) != 0 {
-			validateRes := validateResponse{
-				Tag: "validateToken",
-				Status: false,
-				ErrorMessage: "not a valid json request",
-				HttpCode: 400,
-				Timestamp: time.Now().Format(time.RFC3339),
-			}
-			context.JSON(http.StatusBadRequest, validateRes)
-			context.Abort()
+		ok, req := validateJsonRequest(context)
+		if !ok {
 			return
 		}
 
+		validateReq := req.(validateRequest)
 		subject, roles, err, code := jwt.ValidateToken(validateReq.Token)
 		if err != nil {
 			validateRes := validateResponse{
@@ -87,7 +71,7 @@ func validateHandler() gin.HandlerFunc {
 				HttpCode: code,
 				Timestamp: time.Now().Format(time.RFC3339),
 			}
-			context.JSON(code, validateRes)
+			context.JSON(http.StatusBadRequest, validateRes)
 			context.Abort()
 			return
 		}
@@ -101,10 +85,10 @@ func validateHandler() gin.HandlerFunc {
 				Tag: "validateToken",
 				Status: false,
 				ErrorMessage: "no such user",
-				HttpCode: 401,
+				HttpCode: 404,
 				Timestamp: time.Now().Format(time.RFC3339),
 			}
-			context.JSON(code, validateRes)
+			context.JSON(http.StatusNotFound, validateRes)
 			context.Abort()
 			return
 		case nil:
@@ -116,7 +100,7 @@ func validateHandler() gin.HandlerFunc {
 				HttpCode: 200,
 				Timestamp: time.Now().Format(time.RFC3339),
 			}
-			context.JSON(code, validateRes)
+			context.JSON(http.StatusOK, validateRes)
 			context.Abort()
 			return
 		}
