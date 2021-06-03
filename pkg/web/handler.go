@@ -78,7 +78,7 @@ func validateHandler() gin.HandlerFunc {
 			return
 		}
 
-		issuer, err, code := jwt.ValidateToken(validateReq.Token)
+		subject, roles, err, code := jwt.ValidateToken(validateReq.Token)
 		if err != nil {
 			validateRes := validateResponse{
 				Tag: "validateToken",
@@ -93,11 +93,10 @@ func validateHandler() gin.HandlerFunc {
 		}
 
 		var user model.User
-		logger.Info(issuer)
-		switch err := db.Where("user_name = ?", issuer).First(&user).Error; err {
+		switch err := db.Where("user_name = ?", subject).First(&user).Error; err {
 		// switch err := db.Where("user_name = ?", authReq.Username).First(&user).Error; err {
 		case gorm.ErrRecordNotFound:
-			logger.Warn("no rows were returned!", zap.String("user", issuer))
+			logger.Warn("no rows were returned!", zap.String("user", subject))
 			validateRes := validateResponse{
 				Tag: "validateToken",
 				Status: false,
@@ -112,6 +111,8 @@ func validateHandler() gin.HandlerFunc {
 			validateRes := validateResponse{
 				Tag: "validateToken",
 				Status: true,
+				Username: subject,
+				Roles: roles,
 				HttpCode: 200,
 				Timestamp: time.Now().Format(time.RFC3339),
 			}

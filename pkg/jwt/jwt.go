@@ -51,8 +51,9 @@ func GenerateToken(username string, roles []string, expiresAtInMinutes int32) (s
 }
 
 // ValidateToken validates JWT token by checking if issuer is registered user, expiration time not passed etc
-func ValidateToken(signedToken string) (string, error, int) {
+func ValidateToken(signedToken string) (string, []string, error, int) {
 	// TODO: refactor
+	var roles []string
 	token, err := jwt.ParseWithClaims(
 		signedToken,
 		&VpnbeastClaim{},
@@ -62,19 +63,19 @@ func ValidateToken(signedToken string) (string, error, int) {
 
 	if err != nil {
 		log.Println(err.Error())
-		return "", err, 500
+		return "", roles, err, 500
 	}
 
 	claims, ok := token.Claims.(*VpnbeastClaim)
 	if !ok {
 		err = errors.New("could not parse claims")
-		return "", err, 500
+		return "", roles, err, 500
 	}
 
 	if claims.ExpiresAt < time.Now().Local().Unix() {
 		err = errors.New("jwt is already expired")
-		return "", err, 401
+		return "", roles, err, 401
 	}
 
-	return claims.Subject, nil, 200
+	return claims.Subject, claims.Roles, nil, 200
 }

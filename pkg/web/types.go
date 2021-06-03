@@ -69,6 +69,8 @@ type validateRequest struct {
 type validateResponse struct {
 	Tag    string `json:"tag"`
 	Status bool   `json:"status"`
+	Username string `json:"username"`
+	Roles []string `json:"roles"`
 	ErrorMessage string `json:"errorMessage"`
 	HttpCode int `json:"httpCode"`
 	Timestamp string `json:"timestamp"`
