@@ -40,6 +40,7 @@ type AuthServiceOptions struct {
 	// jwt related config
 	Issuer                     string
 	PrivateKey                 string
+	PublicKey				   string
 	AccessTokenValidInMinutes  int
 	RefreshTokenValidInMinutes int
 	EncryptionServiceUrl       string
@@ -78,17 +79,11 @@ func (asc *AuthServiceOptions) initOptions() {
 		"NAKpCMjPh4LN/M+ege+YgkFF8Eohc2lZct6cMgxNismQT8ZG2Zdbj\\nncY1FfyugjDMMXNLH049oI0gmjg42K0GjsXYKdyfAoGAV1dDKrA07"+
 		"CoJ46jtGFN1\\n/clQG5Onm2bXSgwmEETvZyyir8yKKWkHXIojRbU9m8cuHwLbMtF1VeQ0VZcABMZB\\n4/sg+YBXaaHewepJxwei20ewgj4"+
 		"SK/togka/kUfyXcKu8kHzOXIeX780EOPMferT\\n32LcrXUFphUzdX6ThYvWxyg=\\n-----END PRIVATE KEY-----"), "\\n", "\n", -1)
-
-	/*asc.PrivateKey = strings.Replace(getStringEnv("PRIVATE_KEY", "-----BEGIN PRIVATE KEY-----\\nMIICdwIBADANBgkqhkiG"+
-	"9w0BAQEFAASCAmEwggJdAgEAAoGBANnmLifeLBsiXe/J\\n8O3ophHHaCfJ+EdAUYn7vArJTUtankCD3I8O3n+QM0KNsXzXd+eN6VmNm3bjLp"+
-	"Hq\\nVjI/jCr2m1EqXgvRQP74/wOU1sHN3zSRQbcPR0dfJiDfTRmfh/LVrKgcU0kQ4yrG\\nlc0KGB2uslzrKLJCmQ4G0WeM3tKNAgMBAAECgY"+
-	"EApsep+FXzSGmLoOfegxqZUe5g\\n6GOMp2yxfH2ztkXR5aVcj2DeRplI8DZ9Jamyei2p1xAl1aevoNXOZV0J0LgXHbm+\\nP6MGU7d+IYD2hI"+
-	"CWPfD4pqJafkYc7Q94eQaIiShlYEOoEiLDt09m2V3J/VWxEWw0\\nGTzT1T6zDuwD5epXY/kCQQDv+Xeq+SU5+avfysvm/8bITu/WBRXKxQ7V"+
-	"2dg9rJIF\\nrAZSTPUIqdKm2F+o8DIX4sSMouFMgo81Ad4S8D13iQCPAkEA6HNRwmcfQCHzsuuT\\n1407mEPFAcgIckU6e9ubXRRepWPjE6MJ"+
-	"IyrDeIkCJfgFPiK8OcNvFLUCD8NaySD1\\nQuHRIwJAJtIqo8QOW6SiQ1/hQItcMwdiETNdZSIf1kSZkNCcBsLfeuzsLuyaIVeb\nkg7Za7fJ"+
-	"qB6pZ+EvHZohvNqUdwP4zQJBALf6piiG9C4PcVIYsOA3cYa3hNM/HqhK\\n8NodW9+VAsBGyfC95rqF20aosiGZJ5UhavcRHvc1uNb/GPj99A"+
-	"EmuB8CQCy9M89/\\nWGs0V60TrOWn2cmNlvexvxJgtWIjzdtp5rBj/E7Dmfx9nE6sG+uJqob389HYb0fF\\nj8MrN6RCirNhupc=\\n-----END"+
-	" PRIVATE KEY-----"), "\\n", "\n", -1)*/
+	asc.PublicKey = strings.Replace(getStringEnv("PUBLIC_KEY", "-----BEGIN PUBLIC KEY-----\\nMIIBIjANBg" +
+		"kqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAwKlV08AxrjPvO6X/Ts+t\\n9rWUNo+o4ZEqDRGB2JYU6gTTBD/zf+nasLSc8CggURkwtjfPgVCW" +
+		"8p8esVzGgpoy\\n0PrUUmDH3MH9FKGVrKZfLgwgfzmODWcHi14RRLhzE1f7vDOm2YSCCrv/UWgmi8pS\\nYFw14U2fIhTD+WE6xxBV8VaMDF" +
+		"RjQmCq5VrXie608nSav9SaOprldp1zlw0puSqz\\nibtrFS6Y1yHnobqSuZ+z63Cvw69UW4rIobyoj7vteGBHa3Xz+6+PirlYWsfTywe2\\nEU" +
+		"dkt7bbiXJJAMBLnr8dYT1p967bKYPGYun7vuuS5ZO40xzx3sazGl3fJ+6snVjD\\n+wIDAQAB\\n-----END PUBLIC KEY-----"), "\\n", "\n", -1)
 	asc.AccessTokenValidInMinutes = getIntEnv("ACCESS_TOKEN_VALID_IN_MINUTES", 60)
 	asc.RefreshTokenValidInMinutes = getIntEnv("REFRESH_TOKEN_VALID_IN_MINUTES", 600)
 	asc.EncryptionServiceUrl = getStringEnv("ENCRYPTION_SERVICE_URL", "http://localhost:8085/encryption-controller/check")

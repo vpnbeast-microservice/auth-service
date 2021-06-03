@@ -62,6 +62,18 @@ type userResponse struct {
 	Status bool   `json:"status"`
 }
 
+type validateRequest struct {
+	Token string `json:"token"`
+}
+
+type validateResponse struct {
+	Tag    string `json:"tag"`
+	Status bool   `json:"status"`
+	ErrorMessage string `json:"errorMessage"`
+	HttpCode int `json:"httpCode"`
+	Timestamp string `json:"timestamp"`
+}
+
 type encryptRequest struct {
 	PlainText     string `json:"plainText"`
 	EncryptedText string `json:"encryptedText"`

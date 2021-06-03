@@ -51,7 +51,71 @@ func userHandler() gin.HandlerFunc {
 				Tag: "getUser",
 				Status: true,
 			}
+
 			context.JSON(http.StatusOK, userRes)
+			context.Abort()
+			return
+		}
+	}
+}
+
+func validateHandler() gin.HandlerFunc {
+	// TODO: refactor
+	return func(context *gin.Context) {
+		logger.Info("request received")
+		var validateReq validateRequest
+		_, errSlice := isValidRequest(context, &validateReq)
+		if len(errSlice) != 0 {
+			validateRes := validateResponse{
+				Tag: "validateToken",
+				Status: false,
+				ErrorMessage: "not a valid json request",
+				HttpCode: 400,
+				Timestamp: time.Now().Format(time.RFC3339),
+			}
+			context.JSON(http.StatusBadRequest, validateRes)
+			context.Abort()
+			return
+		}
+
+		issuer, err, code := jwt.ValidateToken(validateReq.Token)
+		if err != nil {
+			validateRes := validateResponse{
+				Tag: "validateToken",
+				Status: false,
+				ErrorMessage: err.Error(),
+				HttpCode: code,
+				Timestamp: time.Now().Format(time.RFC3339),
+			}
+			context.JSON(code, validateRes)
+			context.Abort()
+			return
+		}
+
+		var user model.User
+		logger.Info(issuer)
+		switch err := db.Where("user_name = ?", issuer).First(&user).Error; err {
+		// switch err := db.Where("user_name = ?", authReq.Username).First(&user).Error; err {
+		case gorm.ErrRecordNotFound:
+			logger.Warn("no rows were returned!", zap.String("user", issuer))
+			validateRes := validateResponse{
+				Tag: "validateToken",
+				Status: false,
+				ErrorMessage: "no such user",
+				HttpCode: 401,
+				Timestamp: time.Now().Format(time.RFC3339),
+			}
+			context.JSON(code, validateRes)
+			context.Abort()
+			return
+		case nil:
+			validateRes := validateResponse{
+				Tag: "validateToken",
+				Status: true,
+				HttpCode: 200,
+				Timestamp: time.Now().Format(time.RFC3339),
+			}
+			context.JSON(code, validateRes)
 			context.Abort()
 			return
 		}
