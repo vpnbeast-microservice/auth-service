@@ -20,39 +20,6 @@ func pingHandler() gin.HandlerFunc {
 	}
 }
 
-func userHandler() gin.HandlerFunc {
-	return func(context *gin.Context) {
-		ok, req := validateJsonRequest(context)
-		if !ok {
-			return
-		}
-
-		userReq := req.(userRequest)
-		var user model.User
-		switch err := db.Where("user_name = ?", userReq.Username).First(&user).Error; err {
-		// switch err := db.Where("user_name = ?", authReq.Username).First(&user).Error; err {
-		case gorm.ErrRecordNotFound:
-			logger.Warn("no rows were returned!", zap.String("user", userReq.Username))
-			userRes := userResponse{
-				Tag: "getUser",
-				Status: false,
-			}
-			context.JSON(http.StatusNotFound, userRes)
-			context.Abort()
-			return
-		case nil:
-			userRes := userResponse{
-				Tag: "getUser",
-				Status: true,
-			}
-
-			context.JSON(http.StatusOK, userRes)
-			context.Abort()
-			return
-		}
-	}
-}
-
 func validateHandler() gin.HandlerFunc {
 	// TODO: refactor
 	return func(context *gin.Context) {
