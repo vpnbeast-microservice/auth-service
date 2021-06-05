@@ -11,7 +11,6 @@ func validateJsonRequest(context *gin.Context) (bool, interface{}) {
 	_, errSlice := isValidRequest(context, &validateReq)
 	if len(errSlice) != 0 {
 		validateRes := validateResponse{
-			Tag: "validateToken",
 			Status: false,
 			ErrorMessage: "not a valid json request",
 			HttpCode: 400,

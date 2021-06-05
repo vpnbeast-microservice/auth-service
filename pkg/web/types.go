@@ -58,7 +58,6 @@ type validateRequest struct {
 }
 
 type validateResponse struct {
-	Tag    string `json:"tag"`
 	Status bool   `json:"status"`
 	Username string `json:"username,omitempty"`
 	Roles []string `json:"roles,omitempty"`

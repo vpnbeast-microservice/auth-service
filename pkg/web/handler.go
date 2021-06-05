@@ -32,7 +32,6 @@ func validateHandler() gin.HandlerFunc {
 		subject, roles, err, code := jwt.ValidateToken(validateReq.Token)
 		if err != nil {
 			validateRes := validateResponse{
-				Tag: "validateToken",
 				Status: false,
 				ErrorMessage: err.Error(),
 				HttpCode: code,
@@ -49,7 +48,6 @@ func validateHandler() gin.HandlerFunc {
 		case gorm.ErrRecordNotFound:
 			logger.Warn("no rows were returned!", zap.String("user", subject))
 			validateRes := validateResponse{
-				Tag: "validateToken",
 				Status: false,
 				ErrorMessage: "no such user",
 				HttpCode: 404,
@@ -60,7 +58,6 @@ func validateHandler() gin.HandlerFunc {
 			return
 		case nil:
 			validateRes := validateResponse{
-				Tag: "validateToken",
 				Status: true,
 				Username: subject,
 				Roles: roles,
