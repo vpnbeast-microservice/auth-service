@@ -71,7 +71,7 @@ func validateHandler() gin.HandlerFunc {
 				HttpCode: code,
 				Timestamp: time.Now().Format(time.RFC3339),
 			}
-			context.JSON(http.StatusBadRequest, validateRes)
+			context.JSON(code, validateRes)
 			context.Abort()
 			return
 		}
