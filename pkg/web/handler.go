@@ -32,10 +32,10 @@ func validateHandler() gin.HandlerFunc {
 		subject, roles, err, code := jwt.ValidateToken(validateReq.Token)
 		if err != nil {
 			validateRes := validateResponse{
-				Status: false,
+				Status:       false,
 				ErrorMessage: err.Error(),
-				HttpCode: code,
-				Timestamp: time.Now().Format(time.RFC3339),
+				HttpCode:     code,
+				Timestamp:    time.Now().Format(time.RFC3339),
 			}
 			context.JSON(code, validateRes)
 			context.Abort()
@@ -48,20 +48,20 @@ func validateHandler() gin.HandlerFunc {
 		case gorm.ErrRecordNotFound:
 			logger.Warn("no rows were returned!", zap.String("user", subject))
 			validateRes := validateResponse{
-				Status: false,
+				Status:       false,
 				ErrorMessage: "no such user",
-				HttpCode: 404,
-				Timestamp: time.Now().Format(time.RFC3339),
+				HttpCode:     404,
+				Timestamp:    time.Now().Format(time.RFC3339),
 			}
 			context.JSON(http.StatusNotFound, validateRes)
 			context.Abort()
 			return
 		case nil:
 			validateRes := validateResponse{
-				Status: true,
-				Username: subject,
-				Roles: roles,
-				HttpCode: 200,
+				Status:    true,
+				Username:  subject,
+				Roles:     roles,
+				HttpCode:  200,
 				Timestamp: time.Now().Format(time.RFC3339),
 			}
 			context.JSON(http.StatusOK, validateRes)

@@ -40,7 +40,7 @@ type AuthServiceOptions struct {
 	// jwt related config
 	Issuer                     string
 	PrivateKey                 string
-	PublicKey				   string
+	PublicKey                  string
 	AccessTokenValidInMinutes  int
 	RefreshTokenValidInMinutes int
 	EncryptionServiceUrl       string
@@ -79,10 +79,10 @@ func (asc *AuthServiceOptions) initOptions() {
 		"NAKpCMjPh4LN/M+ege+YgkFF8Eohc2lZct6cMgxNismQT8ZG2Zdbj\\nncY1FfyugjDMMXNLH049oI0gmjg42K0GjsXYKdyfAoGAV1dDKrA07"+
 		"CoJ46jtGFN1\\n/clQG5Onm2bXSgwmEETvZyyir8yKKWkHXIojRbU9m8cuHwLbMtF1VeQ0VZcABMZB\\n4/sg+YBXaaHewepJxwei20ewgj4"+
 		"SK/togka/kUfyXcKu8kHzOXIeX780EOPMferT\\n32LcrXUFphUzdX6ThYvWxyg=\\n-----END PRIVATE KEY-----"), "\\n", "\n", -1)
-	asc.PublicKey = strings.Replace(getStringEnv("PUBLIC_KEY", "-----BEGIN PUBLIC KEY-----\\nMIIBIjANBg" +
-		"kqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAwKlV08AxrjPvO6X/Ts+t\\n9rWUNo+o4ZEqDRGB2JYU6gTTBD/zf+nasLSc8CggURkwtjfPgVCW" +
-		"8p8esVzGgpoy\\n0PrUUmDH3MH9FKGVrKZfLgwgfzmODWcHi14RRLhzE1f7vDOm2YSCCrv/UWgmi8pS\\nYFw14U2fIhTD+WE6xxBV8VaMDF" +
-		"RjQmCq5VrXie608nSav9SaOprldp1zlw0puSqz\\nibtrFS6Y1yHnobqSuZ+z63Cvw69UW4rIobyoj7vteGBHa3Xz+6+PirlYWsfTywe2\\nEU" +
+	asc.PublicKey = strings.Replace(getStringEnv("PUBLIC_KEY", "-----BEGIN PUBLIC KEY-----\\nMIIBIjANBg"+
+		"kqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAwKlV08AxrjPvO6X/Ts+t\\n9rWUNo+o4ZEqDRGB2JYU6gTTBD/zf+nasLSc8CggURkwtjfPgVCW"+
+		"8p8esVzGgpoy\\n0PrUUmDH3MH9FKGVrKZfLgwgfzmODWcHi14RRLhzE1f7vDOm2YSCCrv/UWgmi8pS\\nYFw14U2fIhTD+WE6xxBV8VaMDF"+
+		"RjQmCq5VrXie608nSav9SaOprldp1zlw0puSqz\\nibtrFS6Y1yHnobqSuZ+z63Cvw69UW4rIobyoj7vteGBHa3Xz+6+PirlYWsfTywe2\\nEU"+
 		"dkt7bbiXJJAMBLnr8dYT1p967bKYPGYun7vuuS5ZO40xzx3sazGl3fJ+6snVjD\\n+wIDAQAB\\n-----END PUBLIC KEY-----"), "\\n", "\n", -1)
 	asc.AccessTokenValidInMinutes = getIntEnv("ACCESS_TOKEN_VALID_IN_MINUTES", 60)
 	asc.RefreshTokenValidInMinutes = getIntEnv("REFRESH_TOKEN_VALID_IN_MINUTES", 600)
