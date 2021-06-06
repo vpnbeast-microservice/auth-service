@@ -76,7 +76,7 @@ func authenticateHandler() gin.HandlerFunc {
 		var authReq authRequest
 		_, errSlice := isValidRequest(context, &authReq)
 		if len(errSlice) != 0 {
-			validationResponse(context, "authUser", errSlice)
+			validationResponse(context, errSlice)
 			context.Abort()
 			return
 		}
@@ -86,7 +86,7 @@ func authenticateHandler() gin.HandlerFunc {
 		// switch err := db.Where("user_name = ?", authReq.Username).First(&user).Error; err {
 		case gorm.ErrRecordNotFound:
 			logger.Warn("no rows were returned!", zap.String("user", authReq.Username))
-			errorResponse(context, "authUser", http.StatusNotFound, errUserNotFound)
+			errorResponse(context, http.StatusNotFound, errUserNotFound)
 			context.Abort()
 			return
 		case nil:
@@ -99,7 +99,7 @@ func authenticateHandler() gin.HandlerFunc {
 			encryptRes, err := encryptReq.encrypt(authReq.Password, user.EncryptedPassword)
 			if err != nil {
 				logger.Error("an error occurred while making encryption request", zap.String("error", err.Error()))
-				errorResponse(context, "authUser", http.StatusInternalServerError, errUnknown)
+				errorResponse(context, http.StatusInternalServerError, errUnknown)
 				context.Abort()
 				return
 			}
@@ -115,7 +115,7 @@ func authenticateHandler() gin.HandlerFunc {
 				if err != nil {
 					logger.Error("an error occurred generating access token",
 						zap.String("error", err.Error()))
-					errorResponse(context, "authUser", http.StatusInternalServerError, errUnknown)
+					errorResponse(context, http.StatusInternalServerError, errUnknown)
 					context.Abort()
 					return
 				}
@@ -124,7 +124,7 @@ func authenticateHandler() gin.HandlerFunc {
 				if err != nil {
 					logger.Error("an error occurred generating refresh token",
 						zap.String("error", err.Error()))
-					errorResponse(context, "authUser", http.StatusInternalServerError, errUnknown)
+					errorResponse(context, http.StatusInternalServerError, errUnknown)
 					context.Abort()
 					return
 				}
@@ -164,13 +164,13 @@ func authenticateHandler() gin.HandlerFunc {
 					return
 				default:
 					logger.Warn("an error  occurred while updating db", zap.String("error", err.Error()))
-					errorResponse(context, "authUser", http.StatusInternalServerError, errUnknown)
+					errorResponse(context, http.StatusInternalServerError, errUnknown)
 					context.Abort()
 					return
 				}
 			} else {
 				logger.Error("password validation failed")
-				errorResponse(context, "authUser", http.StatusBadRequest, errInvalidPass)
+				errorResponse(context, http.StatusBadRequest, errInvalidPass)
 				context.Abort()
 				return
 			}
