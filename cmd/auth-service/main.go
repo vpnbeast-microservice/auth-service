@@ -20,8 +20,9 @@ var (
 func init() {
 	gin.SetMode(gin.ReleaseMode)
 	logger = logging.GetLogger()
-	db = database.GetDatabase()
 	opts = options.GetAuthServiceOptions()
+	database.InitDatabase(opts)
+	db = database.GetDatabase()
 }
 
 func main() {

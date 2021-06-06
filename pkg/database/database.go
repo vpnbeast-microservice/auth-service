@@ -15,25 +15,28 @@ var (
 	logger *zap.Logger
 	router *mux.Router
 	db     *gorm.DB
+	sqlDB  *sql.DB
+	err    error
 )
 
 func init() {
 	logger = logging.GetLogger()
 	router = mux.NewRouter()
-	db = initDatabase(options.GetAuthServiceOptions())
+	// db = initDatabase(options.GetAuthServiceOptions())
 }
 
-func initDatabase(opts *options.AuthServiceOptions) *gorm.DB {
-	db, err := gorm.Open(mysql.Open(opts.DbUrl), &gorm.Config{})
+// func InitDatabase(opts *options.AuthServiceOptions) *gorm.DB {
+func InitDatabase(opts *options.AuthServiceOptions) {
+	db, err = gorm.Open(mysql.Open(opts.DbUrl), &gorm.Config{})
 	if err != nil {
 		logger.Fatal("fatal error occurred while opening database connection", zap.String("error", err.Error()))
-		return nil
+		// return nil
 	}
 
-	sqlDB, err := db.DB()
+	sqlDB, err = db.DB()
 	if err != nil {
 		logger.Fatal("fatal error occurred while getting sql.DB from gorm.DB", zap.String("error", err.Error()))
-		return nil
+		// return nil
 	}
 
 	tuneDbPooling(sqlDB, opts.DbMaxOpenConn, opts.DbMaxIdleConn, opts.DbConnMaxLifetimeMin)
@@ -41,7 +44,7 @@ func initDatabase(opts *options.AuthServiceOptions) *gorm.DB {
 		RunHealthProbe(router, sqlDB, opts.HealthCheckMaxTimeoutMin, opts.HealthPort)
 	}()
 
-	return db
+	// return db
 }
 
 // GetDatabase returns the initialized *sql.DB instance
