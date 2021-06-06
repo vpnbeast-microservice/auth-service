@@ -22,21 +22,20 @@ var (
 func init() {
 	logger = logging.GetLogger()
 	router = mux.NewRouter()
-	// db = initDatabase(options.GetAuthServiceOptions())
 }
 
-// func InitDatabase(opts *options.AuthServiceOptions) *gorm.DB {
-func InitDatabase(opts *options.AuthServiceOptions) {
+// InitDatabase initializes the database connection
+func InitDatabase(opts *options.AuthServiceOptions) *gorm.DB {
 	db, err = gorm.Open(mysql.Open(opts.DbUrl), &gorm.Config{})
 	if err != nil {
 		logger.Fatal("fatal error occurred while opening database connection", zap.String("error", err.Error()))
-		// return nil
+		return nil
 	}
 
 	sqlDB, err = db.DB()
 	if err != nil {
 		logger.Fatal("fatal error occurred while getting sql.DB from gorm.DB", zap.String("error", err.Error()))
-		// return nil
+		return nil
 	}
 
 	tuneDbPooling(sqlDB, opts.DbMaxOpenConn, opts.DbMaxIdleConn, opts.DbConnMaxLifetimeMin)
@@ -44,7 +43,7 @@ func InitDatabase(opts *options.AuthServiceOptions) {
 		RunHealthProbe(router, sqlDB, opts.HealthCheckMaxTimeoutMin, opts.HealthPort)
 	}()
 
-	// return db
+	return db
 }
 
 // GetDatabase returns the initialized *sql.DB instance

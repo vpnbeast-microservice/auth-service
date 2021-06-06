@@ -21,8 +21,7 @@ func init() {
 	gin.SetMode(gin.ReleaseMode)
 	logger = logging.GetLogger()
 	opts = options.GetAuthServiceOptions()
-	database.InitDatabase(opts)
-	db = database.GetDatabase()
+	db = database.InitDatabase(opts)
 }
 
 func main() {
