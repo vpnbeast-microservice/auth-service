@@ -55,12 +55,12 @@ type validateRequest struct {
 }
 
 type validateResponse struct {
-	Status bool   `json:"status"`
-	Username string `json:"username,omitempty"`
-	Roles []string `json:"roles,omitempty"`
-	ErrorMessage string `json:"errorMessage"`
-	HttpCode int `json:"httpCode"`
-	Timestamp string `json:"timestamp"`
+	Status       bool     `json:"status"`
+	Username     string   `json:"username,omitempty"`
+	Roles        []string `json:"roles,omitempty"`
+	ErrorMessage string   `json:"errorMessage"`
+	HttpCode     int      `json:"httpCode"`
+	Timestamp    string   `json:"timestamp"`
 }
 
 type encryptRequest struct {
@@ -110,5 +110,5 @@ func (req encryptRequest) encrypt(plainText, encrypted string) (encryptResponse,
 }
 
 type encryptResponse struct {
-	Status bool   `json:"status"`
+	Status bool `json:"status"`
 }

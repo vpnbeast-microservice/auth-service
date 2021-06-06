@@ -11,10 +11,10 @@ func validateJsonRequest(context *gin.Context) (bool, interface{}) {
 	_, errSlice := isValidRequest(context, &validateReq)
 	if len(errSlice) != 0 {
 		validateRes := validateResponse{
-			Status: false,
+			Status:       false,
 			ErrorMessage: "not a valid json request",
-			HttpCode: 400,
-			Timestamp: time.Now().Format(time.RFC3339),
+			HttpCode:     400,
+			Timestamp:    time.Now().Format(time.RFC3339),
 		}
 		context.JSON(http.StatusBadRequest, validateRes)
 		context.Abort()

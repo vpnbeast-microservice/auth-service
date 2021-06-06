@@ -9,12 +9,12 @@ import (
 )
 
 var (
-	privateKey *rsa.PrivateKey
-	publicKey *rsa.PublicKey
+	privateKey      *rsa.PrivateKey
+	publicKey       *rsa.PublicKey
 	privateKeyBytes []byte
-	publicKeyBytes []byte
-	err     error
-	opts    *options.AuthServiceOptions
+	publicKeyBytes  []byte
+	err             error
+	opts            *options.AuthServiceOptions
 )
 
 func init() {
