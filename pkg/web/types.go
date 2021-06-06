@@ -26,7 +26,6 @@ type authSuccessResponse struct {
 	LastLogin                  string        `json:"lastLogin"`
 	Enabled                    bool          `json:"enabled"`
 	EmailVerified              bool          `json:"emailVerified"`
-	Tag                        string        `json:"tag"`
 	AccessToken                string        `json:"accessToken"`
 	AccessTokenExpiresAt       string        `json:"accessTokenExpiresAt"`
 	RefreshToken               string        `json:"refreshToken"`
@@ -38,7 +37,6 @@ type authSuccessResponse struct {
 
 // when user not found or auth failed
 type authFailResponse struct {
-	Tag          string    `json:"tag"`
 	ErrorMessage string    `json:"errorMessage"`
 	Status       bool      `json:"status"`
 	HttpCode     int       `json:"httpCode"`
@@ -48,7 +46,6 @@ type authFailResponse struct {
 type validationErrorResponse struct {
 	Timestamp    time.Time `json:"timestamp"`
 	HttpCode     int       `json:"httpCode"`
-	Tag          string    `json:"tag"`
 	Status       bool      `json:"status"`
 	ErrorMessage []string  `json:"errorMessage"`
 }
@@ -113,6 +110,5 @@ func (req encryptRequest) encrypt(plainText, encrypted string) (encryptResponse,
 }
 
 type encryptResponse struct {
-	Tag    string `json:"tag"`
 	Status bool   `json:"status"`
 }

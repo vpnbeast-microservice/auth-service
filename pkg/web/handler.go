@@ -151,7 +151,6 @@ func authenticateHandler() gin.HandlerFunc {
 						LastLogin:                  user.LastLogin,
 						Enabled:                    user.Enabled,
 						EmailVerified:              user.EmailVerified,
-						Tag:                        "authUser",
 						AccessToken:                user.AccessToken,
 						AccessTokenExpiresAt:       user.AccessTokenExpiresAt,
 						RefreshToken:               user.RefreshToken,
