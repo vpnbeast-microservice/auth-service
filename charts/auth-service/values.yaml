@@ -4,13 +4,60 @@ deployment:
   name: auth-service
   image: vpnbeast/auth-service:0.0.24
   replicaCount: 1
-  serverPort: 5000
-  metricPort: 5001
-  healthPort: 5002
   healthEndpoint: /health
   ingressEndpoint: /auth-service
-  environment:
-    timezone: Europe/Istanbul
+  ports:
+    - containerPort: 5000
+      name: server-port
+    - containerPort: 5001
+      name: metric-port
+    - containerPort: 5002
+      name: health-port
+  variables:
+    - name: TZ
+      value: Europe/Istanbul
+    - name: PORT
+      value: 5000
+  probes:
+    livenessProbe:
+      failureThreshold: 3
+      httpGet:
+        path: /health
+        port: 5002
+        scheme: HTTP
+      initialDelaySeconds: 20
+      periodSeconds: 10
+      successThreshold: 1
+      timeoutSeconds: 10
+    readinessProbe:
+      failureThreshold: 3
+      httpGet:
+        path: /health
+        port: 5002
+        scheme: HTTP
+      initialDelaySeconds: 10
+      periodSeconds: 10
+      successThreshold: 1
+      timeoutSeconds: 10
+
+service:
+  ports:
+    - name: server-port
+      port: 5000
+      targetPort: 5000
+    - name: metric-port
+      port: 5001
+      targetPort: 5001
+    - name: health-port
+      port: 5002
+      targetPort: 5002
 
 ingress:
-  enabled: false
+  enabled: true
+  rules:
+    - http:
+        paths:
+          - path: /auth-service(/|$)(.*)
+            backend:
+              serviceName: auth-service
+              servicePort: 5000

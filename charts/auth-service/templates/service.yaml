@@ -9,15 +9,9 @@ metadata:
   labels:
     app: {{ .Values.deployment.name | quote }}
 spec:
+  {{- if .Values.deployment.ports }}
   ports:
-    - name: server-port
-      port: {{ .Values.deployment.serverPort }}
-      targetPort: {{ .Values.deployment.serverPort }}
-    - name: metric-port
-      port: {{ .Values.deployment.metricPort }}
-      targetPort: {{ .Values.deployment.metricPort }}
-    - name: health-port
-      port: {{ .Values.deployment.healthPort }}
-      targetPort: {{ .Values.deployment.healthPort }}
+  {{- toYaml .Values.deployment.ports | nindent 4 }}
+  {{- end }}
   selector:
     app: {{ .Values.deployment.name | quote }}
