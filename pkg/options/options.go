@@ -40,7 +40,7 @@ type AuthServiceOptions struct {
 	// jwt related config
 	Issuer                     string
 	PrivateKey                 string
-	PublicKey				   string
+	PublicKey                  string
 	AccessTokenValidInMinutes  int
 	RefreshTokenValidInMinutes int
 	EncryptionServiceUrl       string
@@ -48,6 +48,7 @@ type AuthServiceOptions struct {
 	DbUrl                    string
 	DbDriver                 string
 	HealthPort               int
+	HealthEndpoint           string
 	DbMaxOpenConn            int
 	DbMaxIdleConn            int
 	DbConnMaxLifetimeMin     int
@@ -55,14 +56,14 @@ type AuthServiceOptions struct {
 }
 
 // initOptions initializes AuthServiceOptions while reading environment values, sets default values if not specified
-func (asc *AuthServiceOptions) initOptions() {
-	asc.ServerPort = getIntEnv("SERVER_PORT", 5000)
-	asc.MetricsPort = getIntEnv("METRICS_PORT", 5001)
-	asc.MetricsEndpoint = getStringEnv("METRICS_ENDPOINT", "/metrics")
-	asc.WriteTimeoutSeconds = getIntEnv("WRITE_TIMEOUT_SECONDS", 10)
-	asc.ReadTimeoutSeconds = getIntEnv("READ_TIMEOUT_SECONDS", 10)
-	asc.Issuer = getStringEnv("ISSUER", "info@thevpnbeast.com")
-	asc.PrivateKey = strings.Replace(getStringEnv("PRIVATE_KEY", "-----BEGIN PRIVATE KEY-----\\nMIIEvQI"+
+func (aso *AuthServiceOptions) initOptions() {
+	aso.ServerPort = getIntEnv("SERVER_PORT", 5000)
+	aso.MetricsPort = getIntEnv("METRICS_PORT", 5001)
+	aso.MetricsEndpoint = getStringEnv("METRICS_ENDPOINT", "/metrics")
+	aso.WriteTimeoutSeconds = getIntEnv("WRITE_TIMEOUT_SECONDS", 10)
+	aso.ReadTimeoutSeconds = getIntEnv("READ_TIMEOUT_SECONDS", 10)
+	aso.Issuer = getStringEnv("ISSUER", "info@thevpnbeast.com")
+	aso.PrivateKey = strings.Replace(getStringEnv("PRIVATE_KEY", "-----BEGIN PRIVATE KEY-----\\nMIIEvQI"+
 		"BADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDAqVXTwDGuM+87\\npf9Oz632tZQ2j6jhkSoNEYHYlhTqBNMEP/N/6dqwtJzwKCBRG"+
 		"TC2N8+BUJbynx6x\\nXMaCmjLQ+tRSYMfcwf0UoZWspl8uDCB/OY4NZweLXhFEuHMTV/u8M6bZhIIKu/9R\\naCaLylJgXDXhTZ8iFMP5YTrH"+
 		"EFXxVowMVGNCYKrlWteJ7rTydJq/1Jo6muV2nXOX\\nDSm5KrOJu2sVLpjXIeehupK5n7PrcK/Dr1RbisihvKiPu+14YEdrdfP7r4+KuVha\\n"+
@@ -79,21 +80,22 @@ func (asc *AuthServiceOptions) initOptions() {
 		"NAKpCMjPh4LN/M+ege+YgkFF8Eohc2lZct6cMgxNismQT8ZG2Zdbj\\nncY1FfyugjDMMXNLH049oI0gmjg42K0GjsXYKdyfAoGAV1dDKrA07"+
 		"CoJ46jtGFN1\\n/clQG5Onm2bXSgwmEETvZyyir8yKKWkHXIojRbU9m8cuHwLbMtF1VeQ0VZcABMZB\\n4/sg+YBXaaHewepJxwei20ewgj4"+
 		"SK/togka/kUfyXcKu8kHzOXIeX780EOPMferT\\n32LcrXUFphUzdX6ThYvWxyg=\\n-----END PRIVATE KEY-----"), "\\n", "\n", -1)
-	asc.PublicKey = strings.Replace(getStringEnv("PUBLIC_KEY", "-----BEGIN PUBLIC KEY-----\\nMIIBIjANBg" +
-		"kqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAwKlV08AxrjPvO6X/Ts+t\\n9rWUNo+o4ZEqDRGB2JYU6gTTBD/zf+nasLSc8CggURkwtjfPgVCW" +
-		"8p8esVzGgpoy\\n0PrUUmDH3MH9FKGVrKZfLgwgfzmODWcHi14RRLhzE1f7vDOm2YSCCrv/UWgmi8pS\\nYFw14U2fIhTD+WE6xxBV8VaMDF" +
-		"RjQmCq5VrXie608nSav9SaOprldp1zlw0puSqz\\nibtrFS6Y1yHnobqSuZ+z63Cvw69UW4rIobyoj7vteGBHa3Xz+6+PirlYWsfTywe2\\nEU" +
+	aso.PublicKey = strings.Replace(getStringEnv("PUBLIC_KEY", "-----BEGIN PUBLIC KEY-----\\nMIIBIjANBg"+
+		"kqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAwKlV08AxrjPvO6X/Ts+t\\n9rWUNo+o4ZEqDRGB2JYU6gTTBD/zf+nasLSc8CggURkwtjfPgVCW"+
+		"8p8esVzGgpoy\\n0PrUUmDH3MH9FKGVrKZfLgwgfzmODWcHi14RRLhzE1f7vDOm2YSCCrv/UWgmi8pS\\nYFw14U2fIhTD+WE6xxBV8VaMDF"+
+		"RjQmCq5VrXie608nSav9SaOprldp1zlw0puSqz\\nibtrFS6Y1yHnobqSuZ+z63Cvw69UW4rIobyoj7vteGBHa3Xz+6+PirlYWsfTywe2\\nEU"+
 		"dkt7bbiXJJAMBLnr8dYT1p967bKYPGYun7vuuS5ZO40xzx3sazGl3fJ+6snVjD\\n+wIDAQAB\\n-----END PUBLIC KEY-----"), "\\n", "\n", -1)
-	asc.AccessTokenValidInMinutes = getIntEnv("ACCESS_TOKEN_VALID_IN_MINUTES", 60)
-	asc.RefreshTokenValidInMinutes = getIntEnv("REFRESH_TOKEN_VALID_IN_MINUTES", 600)
-	asc.EncryptionServiceUrl = getStringEnv("ENCRYPTION_SERVICE_URL", "http://localhost:8085/encryption-controller/check")
-	asc.DbUrl = getStringEnv("DB_URL", "spring:123asd456@tcp(127.0.0.1:3306)/vpnbeast?parseTime=true&loc=Europe%2FIstanbul")
-	asc.DbDriver = getStringEnv("DB_DRIVER", "mysql")
-	asc.HealthPort = getIntEnv("HEALTH_PORT", 5002)
-	asc.DbMaxOpenConn = getIntEnv("DB_MAX_OPEN_CONN", 25)
-	asc.DbMaxIdleConn = getIntEnv("DB_MAX_IDLE_CONN", 25)
-	asc.DbConnMaxLifetimeMin = getIntEnv("DB_CONN_MAX_LIFETIME_MIN", 5)
-	asc.HealthCheckMaxTimeoutMin = getIntEnv("HEALTHCHECK_MAX_TIMEOUT_MIN", 5)
+	aso.AccessTokenValidInMinutes = getIntEnv("ACCESS_TOKEN_VALID_IN_MINUTES", 60)
+	aso.RefreshTokenValidInMinutes = getIntEnv("REFRESH_TOKEN_VALID_IN_MINUTES", 600)
+	aso.EncryptionServiceUrl = getStringEnv("ENCRYPTION_SERVICE_URL", "http://localhost:8085/encryption-controller/check")
+	aso.DbUrl = getStringEnv("DB_URL", "spring:123asd456@tcp(127.0.0.1:3306)/vpnbeast?parseTime=true&loc=Europe%2FIstanbul")
+	aso.DbDriver = getStringEnv("DB_DRIVER", "mysql")
+	aso.HealthPort = getIntEnv("HEALTH_PORT", 5002)
+	aso.HealthEndpoint = getStringEnv("HEALTH_ENDPOINT", "/health")
+	aso.DbMaxOpenConn = getIntEnv("DB_MAX_OPEN_CONN", 25)
+	aso.DbMaxIdleConn = getIntEnv("DB_MAX_IDLE_CONN", 25)
+	aso.DbConnMaxLifetimeMin = getIntEnv("DB_CONN_MAX_LIFETIME_MIN", 5)
+	aso.HealthCheckMaxTimeoutMin = getIntEnv("HEALTHCHECK_MAX_TIMEOUT_MIN", 5)
 }
 
 // getStringEnv gets the specific environment variables with default value, returns default value if variable not set

@@ -16,16 +16,18 @@ var (
 	router *mux.Router
 	db     *gorm.DB
 	sqlDB  *sql.DB
+	opts   *options.AuthServiceOptions
 	err    error
 )
 
 func init() {
 	logger = logging.GetLogger()
 	router = mux.NewRouter()
+	opts = options.GetAuthServiceOptions()
 }
 
 // InitDatabase initializes the database connection
-func InitDatabase(opts *options.AuthServiceOptions) *gorm.DB {
+func InitDatabase() *gorm.DB {
 	db, err = gorm.Open(mysql.Open(opts.DbUrl), &gorm.Config{})
 	if err != nil {
 		logger.Fatal("fatal error occurred while opening database connection", zap.String("error", err.Error()))
@@ -40,7 +42,7 @@ func InitDatabase(opts *options.AuthServiceOptions) *gorm.DB {
 
 	tuneDbPooling(sqlDB, opts.DbMaxOpenConn, opts.DbMaxIdleConn, opts.DbConnMaxLifetimeMin)
 	go func() {
-		RunHealthProbe(router, sqlDB, opts.HealthCheckMaxTimeoutMin, opts.HealthPort)
+		RunHealthProbe(router)
 	}()
 
 	return db

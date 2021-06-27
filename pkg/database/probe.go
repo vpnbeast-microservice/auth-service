@@ -2,7 +2,6 @@ package database
 
 import (
 	"context"
-	"database/sql"
 	"fmt"
 	"github.com/etherlabsio/healthcheck"
 	"github.com/gorilla/mux"
@@ -12,18 +11,18 @@ import (
 )
 
 // RunHealthProbe provides an endpoint, probes the database connection continuously
-func RunHealthProbe(router *mux.Router, db *sql.DB, healthCheckMaxTimeoutMin, healthPort int) {
-	router.Handle("/health", healthcheck.Handler(
-		healthcheck.WithTimeout(time.Duration(int32(healthCheckMaxTimeoutMin))*time.Second),
+func RunHealthProbe(router *mux.Router) {
+	router.Handle(opts.HealthEndpoint, healthcheck.Handler(
+		healthcheck.WithTimeout(time.Duration(int32(opts.HealthCheckMaxTimeoutMin))*time.Second),
 		healthcheck.WithChecker(
 			"database", healthcheck.CheckerFunc(
 				func(ctx context.Context) error {
-					return db.PingContext(ctx)
+					return sqlDB.PingContext(ctx)
 				},
 			),
 		),
 	))
 
-	logger.Info("probing mysql", zap.Int("port", healthPort))
-	panic(http.ListenAndServe(fmt.Sprintf(":%d", healthPort), router))
+	logger.Info("probing mysql", zap.Int("port", opts.HealthPort))
+	panic(http.ListenAndServe(fmt.Sprintf(":%d", opts.HealthPort), router))
 }
