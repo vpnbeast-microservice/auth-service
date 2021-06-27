@@ -51,7 +51,7 @@ service:
       targetPort: 5002
 
 ingress:
-  enabled: true
+  enabled: false
   rules:
     - http:
         paths:

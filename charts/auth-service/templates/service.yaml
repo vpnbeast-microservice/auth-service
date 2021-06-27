@@ -9,9 +9,9 @@ metadata:
   labels:
     app: {{ .Values.deployment.name | quote }}
 spec:
-  {{- if .Values.deployment.ports }}
+  {{- if .Values.service.ports }}
   ports:
-  {{- toYaml .Values.deployment.ports | nindent 4 }}
+  {{- toYaml .Values.service.ports | nindent 4 }}
   {{- end }}
   selector:
-    app: {{ .Values.deployment.name | quote }}
+    app: {{ .Values.service.name | quote }}
