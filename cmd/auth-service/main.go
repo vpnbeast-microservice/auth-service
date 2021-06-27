@@ -12,17 +12,17 @@ import (
 )
 
 var (
-	logger *zap.Logger
 	db     *gorm.DB
+	logger *zap.Logger
 	opts   *options.AuthServiceOptions
 )
 
 func init() {
+	db = database.InitDatabase()
 	gin.SetMode(gin.ReleaseMode)
 	// gin.DisableConsoleColor()
 	logger = logging.GetLogger()
 	opts = options.GetAuthServiceOptions()
-	db = database.GetDatabase()
 }
 
 func main() {

@@ -1,26 +1,22 @@
 package web
 
 import (
-	"auth-service/pkg/database"
 	"auth-service/pkg/logging"
 	"auth-service/pkg/options"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
-	"gorm.io/gorm"
 	"net/http"
 	"time"
 )
 
 var (
 	logger *zap.Logger
-	db     *gorm.DB
 	opts   *options.AuthServiceOptions
 )
 
 func init() {
 	logger = logging.GetLogger()
-	db = database.GetDatabase()
 	opts = options.GetAuthServiceOptions()
 }
 

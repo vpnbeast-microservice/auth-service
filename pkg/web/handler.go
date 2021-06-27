@@ -1,6 +1,7 @@
 package web
 
 import (
+	"auth-service/pkg/database"
 	"auth-service/pkg/jwt"
 	"auth-service/pkg/model"
 	"github.com/gin-gonic/gin"
@@ -39,6 +40,7 @@ func validateHandler() gin.HandlerFunc {
 		}
 
 		var user model.User
+		db := database.GetDatabase()
 		switch err := db.Where("user_name = ?", subject).First(&user).Error; err {
 		case gorm.ErrRecordNotFound:
 			logger.Warn("no rows were returned!", zap.String("user", subject))
@@ -73,6 +75,7 @@ func authenticateHandler() gin.HandlerFunc {
 		authReq := req.(authRequest)
 		logger.Info("", zap.Any("authReq", authReq.Username))
 		var user model.User
+		db := database.GetDatabase()
 		switch err := db.Preload("Roles").Where("user_name = ?", authReq.Username).First(&user).Error; err {
 		// switch err := db.Where("user_name = ?", authReq.Username).First(&user).Error; err {
 		case gorm.ErrRecordNotFound:
