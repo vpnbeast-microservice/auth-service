@@ -24,10 +24,11 @@ func init() {
 	logger = logging.GetLogger()
 	router = mux.NewRouter()
 	opts = options.GetAuthServiceOptions()
+	db = initDatabase()
 }
 
-// InitDatabase initializes the database connection
-func InitDatabase() *gorm.DB {
+// initDatabase initializes the database connection
+func initDatabase() *gorm.DB {
 	db, err = gorm.Open(mysql.Open(opts.DbUrl), &gorm.Config{})
 	if err != nil {
 		logger.Fatal("fatal error occurred while opening database connection", zap.String("error", err.Error()))

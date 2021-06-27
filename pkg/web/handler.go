@@ -23,11 +23,7 @@ func pingHandler() gin.HandlerFunc {
 func validateHandler() gin.HandlerFunc {
 	// TODO: refactor
 	return func(context *gin.Context) {
-		ok, req := validateJsonRequest(context)
-		if !ok {
-			return
-		}
-
+		req, _ := context.Get("data")
 		validateReq := req.(validateRequest)
 		subject, roles, err, code := jwt.ValidateToken(validateReq.Token)
 		if err != nil {
@@ -44,7 +40,6 @@ func validateHandler() gin.HandlerFunc {
 
 		var user model.User
 		switch err := db.Where("user_name = ?", subject).First(&user).Error; err {
-		// switch err := db.Where("user_name = ?", authReq.Username).First(&user).Error; err {
 		case gorm.ErrRecordNotFound:
 			logger.Warn("no rows were returned!", zap.String("user", subject))
 			validateRes := validateResponse{
@@ -73,14 +68,10 @@ func validateHandler() gin.HandlerFunc {
 
 func authenticateHandler() gin.HandlerFunc {
 	return func(context *gin.Context) {
-		var authReq authRequest
-		_, errSlice := isValidRequest(context, &authReq)
-		if len(errSlice) != 0 {
-			validationResponse(context, errSlice)
-			context.Abort()
-			return
-		}
-
+		req, _ := context.Get("data")
+		logger.Info("", zap.Any("req", req))
+		authReq := req.(authRequest)
+		logger.Info("", zap.Any("authReq", authReq.Username))
 		var user model.User
 		switch err := db.Preload("Roles").Where("user_name = ?", authReq.Username).First(&user).Error; err {
 		// switch err := db.Where("user_name = ?", authReq.Username).First(&user).Error; err {
@@ -90,7 +81,6 @@ func authenticateHandler() gin.HandlerFunc {
 			context.Abort()
 			return
 		case nil:
-			// logger.Info("", zap.Any("role of user", user.Roles))
 			encryptReq := encryptRequest{
 				PlainText:     authReq.Password,
 				EncryptedText: user.EncryptedPassword,

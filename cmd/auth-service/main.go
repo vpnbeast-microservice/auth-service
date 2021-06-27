@@ -19,9 +19,10 @@ var (
 
 func init() {
 	gin.SetMode(gin.ReleaseMode)
+	// gin.DisableConsoleColor()
 	logger = logging.GetLogger()
 	opts = options.GetAuthServiceOptions()
-	db = database.InitDatabase()
+	db = database.GetDatabase()
 }
 
 func main() {
@@ -46,7 +47,6 @@ func main() {
 
 	router := gin.Default()
 	go metrics.RunMetricsServer(router)
-
 	server := web.InitServer(router)
 	logger.Info("web server is up and running", zap.Int("serverPort", opts.ServerPort))
 	panic(server.ListenAndServe())

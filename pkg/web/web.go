@@ -25,11 +25,27 @@ func init() {
 }
 
 func registerHandlers(router *gin.Engine) {
-	router.GET("/health/ping", pingHandler())
-	router.POST("/auth/authenticate", authenticateHandler())
-	router.POST("/auth/validate", validateHandler())
-	// TODO: request validation middleware
-	// router.Use(loggingMiddleware)
+	// Recovery middleware recovers from any panics and writes a 500 if there was one.
+	router.Use(gin.CustomRecovery(func(c *gin.Context, recovered interface{}) {
+		if err, ok := recovered.(string); ok {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"code":      http.StatusInternalServerError,
+				"error":     err,
+				"timestamp": time.Now(),
+			})
+		}
+		c.AbortWithStatus(http.StatusInternalServerError)
+	}))
+	healthRoutes := router.Group("/health")
+	{
+		healthRoutes.GET("/ping", pingHandler())
+	}
+	authRoutes := router.Group("/auth")
+	{
+		// TODO: single request validator middleware instead of 2 seperate
+		authRoutes.POST("/authenticate", authRequestValidator(), authenticateHandler())
+		authRoutes.POST("/validate", validateRequestValidator(), validateHandler())
+	}
 }
 
 // InitServer initializes *http.Server with provided parameters
