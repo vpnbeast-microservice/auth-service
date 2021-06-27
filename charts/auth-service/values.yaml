@@ -4,8 +4,6 @@ deployment:
   name: auth-service
   image: vpnbeast/auth-service:0.0.24
   replicaCount: 1
-  healthEndpoint: /health
-  ingressEndpoint: /auth-service
   ports:
     - containerPort: 5000
       name: server-port
