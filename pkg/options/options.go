@@ -88,7 +88,7 @@ func (aso *AuthServiceOptions) initOptions() {
 	aso.AccessTokenValidInMinutes = getIntEnv("ACCESS_TOKEN_VALID_IN_MINUTES", 60)
 	aso.RefreshTokenValidInMinutes = getIntEnv("REFRESH_TOKEN_VALID_IN_MINUTES", 600)
 	aso.EncryptionServiceUrl = getStringEnv("ENCRYPTION_SERVICE_URL", "http://localhost:8085/encryption-controller/check")
-	aso.DbUrl = getStringEnv("DB_URL", "spring:123asd456@tcp(127.0.0.1:3306)/vpnbeast?parseTime=true&loc=Europe%2FIstanbul")
+	aso.DbUrl = getStringEnv("DB_URL", "spring:123asd456@tcp(127.0.0.1:3306)/vpnbeast?parseTime=true&loc=Local")
 	aso.DbDriver = getStringEnv("DB_DRIVER", "mysql")
 	aso.HealthPort = getIntEnv("HEALTH_PORT", 5002)
 	aso.HealthEndpoint = getStringEnv("HEALTH_ENDPOINT", "/health")
