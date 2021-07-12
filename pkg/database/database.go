@@ -14,7 +14,7 @@ import (
 var (
 	logger *zap.Logger
 	router *mux.Router
-	db     *gorm.DB
+	gormdb *gorm.DB
 	sqlDB  *sql.DB
 	opts   *options.AuthServiceOptions
 	err    error
@@ -28,13 +28,13 @@ func init() {
 
 // InitDatabase initializes the database connection
 func InitDatabase() *gorm.DB {
-	db, err = gorm.Open(mysql.Open(opts.DbUrl), &gorm.Config{})
+	gormdb, err = gorm.Open(mysql.Open(opts.DbUrl), &gorm.Config{})
 	if err != nil {
 		logger.Fatal("fatal error occurred while opening database connection", zap.String("error", err.Error()))
 		return nil
 	}
 
-	sqlDB, err = db.DB()
+	sqlDB, err = gormdb.DB()
 	if err != nil {
 		logger.Fatal("fatal error occurred while getting sql.DB from gorm.DB", zap.String("error", err.Error()))
 		return nil
@@ -45,12 +45,12 @@ func InitDatabase() *gorm.DB {
 		RunHealthProbe(router)
 	}()
 
-	return db
+	return gormdb
 }
 
 // GetDatabase returns the initialized *sql.DB instance
 func GetDatabase() *gorm.DB {
-	return db
+	return gormdb
 }
 
 // Read on https://www.alexedwards.net/blog/configuring-sqldb for detailed explanation

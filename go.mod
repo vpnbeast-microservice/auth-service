@@ -4,7 +4,7 @@ go 1.16
 
 require (
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
-	github.com/etherlabsio/healthcheck v0.0.0-20191224061800-dd3d2fd8c3f6
+	github.com/dimiro1/health v0.0.0-20191019130555-c5cbb4d46ffc
 	github.com/gin-gonic/gin v1.7.2
 	github.com/go-playground/locales v0.13.0
 	github.com/go-playground/universal-translator v0.17.0
