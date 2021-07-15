@@ -41,6 +41,7 @@ func registerHandlers(router *gin.Engine) {
 		// TODO: single request validator middleware instead of 2 seperate
 		authRoutes.POST("/authenticate", authRequestValidator(), authenticateHandler())
 		authRoutes.POST("/validate", validateRequestValidator(), validateHandler())
+		authRoutes.POST("/refresh", refreshHandler())
 	}
 }
 
