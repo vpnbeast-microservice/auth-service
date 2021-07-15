@@ -8,7 +8,6 @@ import (
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 	"net/http"
-	"strings"
 	"time"
 )
 
@@ -22,11 +21,60 @@ func pingHandler() gin.HandlerFunc {
 	}
 }
 
+func whoamiHandler() gin.HandlerFunc {
+	return func(context *gin.Context) {
+		token := context.Request.Header.Get("Authorization")[7:]
+		subject, _, err, code := jwt.ValidateToken(token)
+		if err != nil {
+			validateRes := validateResponse{
+				Status:       false,
+				ErrorMessage: err.Error(),
+				HttpCode:     code,
+				Timestamp:    time.Now().Format(time.RFC3339),
+			}
+			context.JSON(code, validateRes)
+			context.Abort()
+			return
+		}
+		var user model.User
+		db := database.GetDatabase()
+		switch err := db.Preload("Roles").Where("user_name = ?", subject).First(&user).Error; err {
+		case gorm.ErrRecordNotFound:
+			logger.Warn("no rows were returned!", zap.String("user", subject))
+			errorResponse(context, http.StatusNotFound, errUserNotFound)
+			context.Abort()
+			return
+		case nil:
+			authRes := authSuccessResponse{
+				Uuid:                       user.Uuid,
+				Id:                         user.Id,
+				CreatedAt:                  user.CreatedAt,
+				UpdatedAt:                  user.UpdatedAt,
+				Version:                    user.Version,
+				Username:                   user.UserName,
+				Email:                      user.Email,
+				LastLogin:                  user.LastLogin,
+				Enabled:                    user.Enabled,
+				EmailVerified:              user.EmailVerified,
+				AccessToken:                user.AccessToken,
+				AccessTokenExpiresAt:       user.AccessTokenExpiresAt,
+				RefreshToken:               user.RefreshToken,
+				RefreshTokenExpiresAt:      user.RefreshTokenExpiresAt,
+				VerificationCodeCreatedAt:  user.VerificationCodeCreatedAt,
+				VerificationCodeVerifiedAt: user.VerificationCodeVerifiedAt,
+				Roles:                      user.Roles,
+			}
+			context.JSON(http.StatusOK, authRes)
+			context.Abort()
+			return
+		}
+	}
+}
+
 func refreshHandler() gin.HandlerFunc {
 	return func(context *gin.Context) {
 		token := context.Request.Header.Get("Authorization")[7:]
 		subject, roles, err, code := jwt.ValidateToken(token)
-		logger.Info("", zap.String("subject", subject), zap.String("roles", strings.Join(roles, ",")))
 		if err != nil {
 			validateRes := validateResponse{
 				Status:       false,
