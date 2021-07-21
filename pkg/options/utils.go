@@ -45,6 +45,7 @@ func unmarshalConfig(key string, value interface{}) error {
 	return sub.Unmarshal(value)
 }
 
+// TODO: bind envs programatically by converting field name of struct to underscore case
 func bindEnvs(sub *viper.Viper) {
 	_ = sub.BindEnv("serverPort", "SERVER_PORT")
 	_ = sub.BindEnv("metricsPort", "METRICS_PORT")
