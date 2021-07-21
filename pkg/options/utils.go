@@ -3,7 +3,6 @@ package options
 import (
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
-	"log"
 	"os"
 	"reflect"
 	"strconv"
@@ -44,7 +43,6 @@ func unmarshalConfig(key string, value interface{}) error {
 	sub.AutomaticEnv()
 	sub.SetEnvPrefix(key)
 	bindEnvs(sub)
-
 	return sub.Unmarshal(value)
 }
 
@@ -54,9 +52,8 @@ func bindEnvs(sub *viper.Viper) {
 	opts := AuthServiceOptions{}
 	fieldCount := reflect.TypeOf(opts).NumField()
 	for i := 0; i < fieldCount; i++ {
-		tag := reflect.TypeOf(opts).Field(i).Tag.Get("env")
+		env := reflect.TypeOf(opts).Field(i).Tag.Get("env")
 		name := reflect.TypeOf(opts).Field(i).Name
-		log.Printf("%s - %s\n", name, tag)
-		_ = sub.BindEnv(name, tag)
+		_ = sub.BindEnv(name, env)
 	}
 }
