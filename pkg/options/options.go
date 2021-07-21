@@ -87,10 +87,11 @@ func (aso *AuthServiceOptions) initOptions() error {
 		return err
 	}
 
-	if err := unmarshalConfig("auth-service", aso); err != nil {
+	if err := unmarshalConfig(appName, aso); err != nil {
 		return err
 	}
 
+	// required logic for auth-service to convert private key and public key to specific format
 	aso.PrivateKey = strings.Replace(aso.PrivateKey, "\\n", "\n", -1)
 	aso.PublicKey = strings.Replace(aso.PublicKey, "\\n", "\n", -1)
 
