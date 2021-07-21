@@ -2,7 +2,10 @@ package options
 
 import (
 	"auth-service/pkg/logging"
+	"fmt"
+	"github.com/spf13/viper"
 	"go.uber.org/zap"
+	"net/http"
 	"os"
 	"strconv"
 	"strings"
@@ -16,7 +19,10 @@ var (
 func init() {
 	logger = logging.GetLogger()
 	options = newAuthServiceOptions()
-	options.initOptions()
+	err := options.initOptions()
+	if err != nil {
+		logger.Fatal("fatal error occured while initializing options", zap.Error(err))
+	}
 }
 
 // GetAuthServiceOptions returns the initialized AuthServiceOptions
@@ -56,46 +62,41 @@ type AuthServiceOptions struct {
 }
 
 // initOptions initializes AuthServiceOptions while reading environment values, sets default values if not specified
-func (aso *AuthServiceOptions) initOptions() {
-	aso.ServerPort = getIntEnv("SERVER_PORT", 5000)
-	aso.MetricsPort = getIntEnv("METRICS_PORT", 5001)
-	aso.MetricsEndpoint = getStringEnv("METRICS_ENDPOINT", "/metrics")
-	aso.WriteTimeoutSeconds = getIntEnv("WRITE_TIMEOUT_SECONDS", 10)
-	aso.ReadTimeoutSeconds = getIntEnv("READ_TIMEOUT_SECONDS", 10)
-	aso.Issuer = getStringEnv("ISSUER", "info@thevpnbeast.com")
-	aso.PrivateKey = strings.Replace(getStringEnv("PRIVATE_KEY", "-----BEGIN PRIVATE KEY-----\\nMIIEvQI"+
-		"BADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDAqVXTwDGuM+87\\npf9Oz632tZQ2j6jhkSoNEYHYlhTqBNMEP/N/6dqwtJzwKCBRG"+
-		"TC2N8+BUJbynx6x\\nXMaCmjLQ+tRSYMfcwf0UoZWspl8uDCB/OY4NZweLXhFEuHMTV/u8M6bZhIIKu/9R\\naCaLylJgXDXhTZ8iFMP5YTrH"+
-		"EFXxVowMVGNCYKrlWteJ7rTydJq/1Jo6muV2nXOX\\nDSm5KrOJu2sVLpjXIeehupK5n7PrcK/Dr1RbisihvKiPu+14YEdrdfP7r4+KuVha\\n"+
-		"x9PLB7YRR2S3ttuJckkAwEuevx1hPWn3rtspg8Zi6fu+65Llk7jTHPHexrMaXd8n\\n7qydWMP7AgMBAAECggEBAK4bGTXP1NWhl0tnOq6lHY"+
-		"f7FeKstqiJv9+pd5ccIfBN\\nxchsZoes9PWFcuHQ0UuYoR26l+o7wv2k8F7GAZra8JtMYX3Eejk0kZoIYDNy8kax\\nrNhsUcQo3HeE3cQlj"+
-		"9DmTNcKMnkVt1MuC5Ast9DSWNk9228s72ckLun5hN2KFLCP\\nudPM5jERYEwO0PoeUM9nY/8kx+JLhCXkvthwIlB1pBPZDfyFcG5qxT+dmTQ"+
-		"I4Pg5\\nNl/SFJHX2ALbcN0WStEoe/FuLT/08lZgb5VADpvH+KKvSaMihjlkxzwrJT0cAuss\\nnbx9ub3x0VOjb5pRtbry/PhkLLwhiZD1Q"+
-		"37hXGltqoECgYEA/j4KxymxUdufgunC\\nUPs5pDdJi10ZGlU3aDOTgF/7VtJuJk+KOat4/Q8zCzk+rL6+wThkUekBUpJO8YM8\\nWNLMbVs"+
-		"Pq7aD8uZjy1T9UQ2xClHvYRWVjPsRHJtgAzTp6FsYBJxBodpZB+6LCL35\\nuChmLr1drdYXgLmF2bPkDWRgsEECgYEAwf5OrzTSbF3JXZYk2"+
-		"RkYouY7/ImcIgPm\\n/6x+zDclQPwuJtT43kCsyVA7SRhGjX3RpLYcFk9Deem0RKAr6i7KJo4s0yAltdzA\\nno089UcjJ068AVLCenOVm2B"+
-		"bJV6rywtPJJwmVpQMQrH0Xksif+hPGpxCIzQGXrQQ\\nzdOQpOPm5TsCgYBHgygA8UdBISdy6VGQ+bky6aI0IxGmiIW3N5qrp1PJDhORjx"+
-		"nw\\nMr0rYRUYeReZ+2UocDY3m/SVRzYRVLqquVBrCgwUXpgqwIcdcGB4ZgOARZ+xjSKt\\nrwkXJNUS0dVhWA4fbdxALGySgJR29wjAtgxX"+
-		"5UfuV6Pwvz5ZB/KDmdJggQKBgDi5\\nPpK2lEzBg67Mx0t/rhd70NCAAFpl37ak3pKiEU+WLXyHS5nZOWzH+/3cjkyzHIjY\\nAxB27tkIAAE"+
-		"NAKpCMjPh4LN/M+ege+YgkFF8Eohc2lZct6cMgxNismQT8ZG2Zdbj\\nncY1FfyugjDMMXNLH049oI0gmjg42K0GjsXYKdyfAoGAV1dDKrA07"+
-		"CoJ46jtGFN1\\n/clQG5Onm2bXSgwmEETvZyyir8yKKWkHXIojRbU9m8cuHwLbMtF1VeQ0VZcABMZB\\n4/sg+YBXaaHewepJxwei20ewgj4"+
-		"SK/togka/kUfyXcKu8kHzOXIeX780EOPMferT\\n32LcrXUFphUzdX6ThYvWxyg=\\n-----END PRIVATE KEY-----"), "\\n", "\n", -1)
-	aso.PublicKey = strings.Replace(getStringEnv("PUBLIC_KEY", "-----BEGIN PUBLIC KEY-----\\nMIIBIjANBg"+
-		"kqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAwKlV08AxrjPvO6X/Ts+t\\n9rWUNo+o4ZEqDRGB2JYU6gTTBD/zf+nasLSc8CggURkwtjfPgVCW"+
-		"8p8esVzGgpoy\\n0PrUUmDH3MH9FKGVrKZfLgwgfzmODWcHi14RRLhzE1f7vDOm2YSCCrv/UWgmi8pS\\nYFw14U2fIhTD+WE6xxBV8VaMDF"+
-		"RjQmCq5VrXie608nSav9SaOprldp1zlw0puSqz\\nibtrFS6Y1yHnobqSuZ+z63Cvw69UW4rIobyoj7vteGBHa3Xz+6+PirlYWsfTywe2\\nEU"+
-		"dkt7bbiXJJAMBLnr8dYT1p967bKYPGYun7vuuS5ZO40xzx3sazGl3fJ+6snVjD\\n+wIDAQAB\\n-----END PUBLIC KEY-----"), "\\n", "\n", -1)
-	aso.AccessTokenValidInMinutes = getIntEnv("ACCESS_TOKEN_VALID_IN_MINUTES", 60)
-	aso.RefreshTokenValidInMinutes = getIntEnv("REFRESH_TOKEN_VALID_IN_MINUTES", 600)
-	aso.EncryptionServiceUrl = getStringEnv("ENCRYPTION_SERVICE_URL", "http://localhost:8085/encryption-controller/check")
-	aso.DbUrl = getStringEnv("DB_URL", "spring:123asd456@tcp(127.0.0.1:3306)/vpnbeast?parseTime=true&loc=Local")
-	aso.DbDriver = getStringEnv("DB_DRIVER", "mysql")
-	aso.HealthPort = getIntEnv("HEALTH_PORT", 5002)
-	aso.HealthEndpoint = getStringEnv("HEALTH_ENDPOINT", "/health")
-	aso.DbMaxOpenConn = getIntEnv("DB_MAX_OPEN_CONN", 25)
-	aso.DbMaxIdleConn = getIntEnv("DB_MAX_IDLE_CONN", 25)
-	aso.DbConnMaxLifetimeMin = getIntEnv("DB_CONN_MAX_LIFETIME_MIN", 5)
-	aso.HealthCheckMaxTimeoutMin = getIntEnv("HEALTHCHECK_MAX_TIMEOUT_MIN", 5)
+func (aso *AuthServiceOptions) initOptions() error {
+	configHost := getStringEnv("CONFIG_SERVER_HOST", "localhost")
+	configPort := getIntEnv("CONFIG_SERVER_PORT", 8888)
+	appName := getStringEnv("APP_NAME", "auth-service")
+	activeProfile := getStringEnv("ACTIVE_PROFILE", "local")
+	logger.Info("loading configuration from remote server", zap.String("host", configHost),
+		zap.Int("port", configPort), zap.String("appName", appName),
+		zap.String("activeProfile", activeProfile))
+	confAddr := fmt.Sprintf("http://%s:%d/%s-%s.yaml", configHost, configPort, appName, activeProfile)
+	resp, err := http.Get(confAddr)
+	if err != nil {
+		return err
+	}
+
+	defer func() {
+		err := resp.Body.Close()
+		if err != nil {
+			panic(err)
+		}
+	}()
+
+	viper.SetConfigName("application")
+	viper.SetConfigType("yaml")
+	if err = viper.ReadConfig(resp.Body); err != nil {
+		return err
+	}
+
+	if err := unmarshalConfig("auth-service", aso); err != nil {
+		return err
+	}
+
+	aso.PrivateKey = strings.Replace(aso.PrivateKey, "\\n", "\n", -1)
+	aso.PublicKey = strings.Replace(aso.PublicKey, "\\n", "\n", -1)
+
+	return nil
 }
 
 // getStringEnv gets the specific environment variables with default value, returns default value if variable not set
@@ -125,4 +126,35 @@ func convertStringToInt(s string) int {
 		i = 0
 	}
 	return i
+}
+
+func unmarshalConfig(key string, value interface{}) error {
+	sub := viper.Sub(key)
+	sub.AutomaticEnv()
+	sub.SetEnvPrefix(key)
+	bindEnvs(sub)
+
+	return sub.Unmarshal(value)
+}
+
+func bindEnvs(sub *viper.Viper) {
+	_ = sub.BindEnv("serverPort", "SERVER_PORT")
+	_ = sub.BindEnv("metricsPort", "METRICS_PORT")
+	_ = sub.BindEnv("metricsEndpoint", "METRICS_ENDPOINT")
+	_ = sub.BindEnv("writeTimeoutSeconds", "WRITE_TIMEOUT_SECONDS")
+	_ = sub.BindEnv("readTimeoutSeconds", "READ_TIMEOUT_SECONDS")
+	_ = sub.BindEnv("issuer", "ISSUER")
+	_ = sub.BindEnv("privateKey", "PRIVATE_KEY")
+	_ = sub.BindEnv("publicKey", "PUBLIC_KEY")
+	_ = sub.BindEnv("accessTokenValidInMinutes", "ACCESS_TOKEN_VALID_IN_MINUTES")
+	_ = sub.BindEnv("refreshTokenValidInMinutes", "REFRESH_TOKEN_VALID_IN_MINUTES")
+	_ = sub.BindEnv("encryptionServiceUrl", "ENCRYPTION_SERVICE_URL")
+	_ = sub.BindEnv("dbUrl", "DB_URL")
+	_ = sub.BindEnv("dbDriver", "DB_DRIVER")
+	_ = sub.BindEnv("dbMaxOpenConn", "DB_MAX_OPEN_CONN")
+	_ = sub.BindEnv("dbMaxIdleConn", "DB_MAX_IDLE_CONN")
+	_ = sub.BindEnv("dbConnMaxLifetimeMin", "DB_CONN_MAX_LIFETIME_MIN")
+	_ = sub.BindEnv("healthCheckMaxTimeoutMin", "HEALTHCHECK_MAX_TIMEOUT_MIN")
+	_ = sub.BindEnv("healthPort", "HEALTH_PORT")
+	_ = sub.BindEnv("healthEndpoint", "HEALTH_ENDPOINT")
 }
