@@ -36,27 +36,27 @@ func newAuthServiceOptions() *AuthServiceOptions {
 // AuthServiceOptions represents auth-service environment variables
 type AuthServiceOptions struct {
 	// web server related config
-	ServerPort          int
-	MetricsPort         int
-	MetricsEndpoint     string
-	WriteTimeoutSeconds int
-	ReadTimeoutSeconds  int
+	ServerPort          int    `env:"SERVER_PORT"`
+	MetricsPort         int    `env:"METRICS_PORT"`
+	MetricsEndpoint     string `env:"METRICS_ENDPOINT"`
+	WriteTimeoutSeconds int    `env:"WRITE_TIMEOUT_SECONDS"`
+	ReadTimeoutSeconds  int    `env:"READ_TIMEOUT_SECONDS"`
 	// jwt related config
-	Issuer                     string
-	PrivateKey                 string
-	PublicKey                  string
-	AccessTokenValidInMinutes  int
-	RefreshTokenValidInMinutes int
-	EncryptionServiceUrl       string
+	Issuer                     string `env:"ISSUER"`
+	PrivateKey                 string `env:"PRIVATE_KEY"`
+	PublicKey                  string `env:"PUBLIC_KEY"`
+	AccessTokenValidInMinutes  int    `env:"ACCESS_TOKEN_VALID_IN_MINUTES"`
+	RefreshTokenValidInMinutes int    `env:"REFRESH_TOKEN_VALID_IN_MINUTES"`
+	EncryptionServiceUrl       string `env:"ENCRYPTION_SERVICE_URL"`
 	// database related config
-	DbUrl                    string
-	DbDriver                 string
-	HealthPort               int
-	HealthEndpoint           string
-	DbMaxOpenConn            int
-	DbMaxIdleConn            int
-	DbConnMaxLifetimeMin     int
-	HealthCheckMaxTimeoutMin int
+	DbUrl                    string `env:"DB_URL"`
+	DbDriver                 string `env:"DB_DRIVER"`
+	HealthPort               int    `env:"HEALTH_PORT"`
+	HealthEndpoint           string `env:"HEALTH_ENDPOINT"`
+	DbMaxOpenConn            int    `env:"DB_MAX_OPEN_CONN"`
+	DbMaxIdleConn            int    `env:"DB_MAX_IDLE_CONN"`
+	DbConnMaxLifetimeMin     int    `env:"DB_CONN_MAX_LIFETIME_MIN"`
+	HealthCheckMaxTimeoutMin int    `env:"HEALTHCHECK_MAX_TIMEOUT_MIN"`
 }
 
 // initOptions initializes AuthServiceOptions while reading environment values, sets default values if not specified

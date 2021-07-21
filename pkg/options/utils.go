@@ -3,7 +3,9 @@ package options
 import (
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
+	"log"
 	"os"
+	"reflect"
 	"strconv"
 )
 
@@ -36,6 +38,7 @@ func convertStringToInt(s string) int {
 	return i
 }
 
+// unmarshalConfig creates a new *viper.Viper and unmarshalls the config into struct using *viper.Viper
 func unmarshalConfig(key string, value interface{}) error {
 	sub := viper.Sub(key)
 	sub.AutomaticEnv()
@@ -45,25 +48,15 @@ func unmarshalConfig(key string, value interface{}) error {
 	return sub.Unmarshal(value)
 }
 
-// TODO: bind envs programatically by converting field name of struct to underscore case
+// bindEnvs takes *viper.Viper as argument and binds structs fields to environments variables to be able to override
+// them using environment variables at the runtime
 func bindEnvs(sub *viper.Viper) {
-	_ = sub.BindEnv("serverPort", "SERVER_PORT")
-	_ = sub.BindEnv("metricsPort", "METRICS_PORT")
-	_ = sub.BindEnv("metricsEndpoint", "METRICS_ENDPOINT")
-	_ = sub.BindEnv("writeTimeoutSeconds", "WRITE_TIMEOUT_SECONDS")
-	_ = sub.BindEnv("readTimeoutSeconds", "READ_TIMEOUT_SECONDS")
-	_ = sub.BindEnv("issuer", "ISSUER")
-	_ = sub.BindEnv("privateKey", "PRIVATE_KEY")
-	_ = sub.BindEnv("publicKey", "PUBLIC_KEY")
-	_ = sub.BindEnv("accessTokenValidInMinutes", "ACCESS_TOKEN_VALID_IN_MINUTES")
-	_ = sub.BindEnv("refreshTokenValidInMinutes", "REFRESH_TOKEN_VALID_IN_MINUTES")
-	_ = sub.BindEnv("encryptionServiceUrl", "ENCRYPTION_SERVICE_URL")
-	_ = sub.BindEnv("dbUrl", "DB_URL")
-	_ = sub.BindEnv("dbDriver", "DB_DRIVER")
-	_ = sub.BindEnv("dbMaxOpenConn", "DB_MAX_OPEN_CONN")
-	_ = sub.BindEnv("dbMaxIdleConn", "DB_MAX_IDLE_CONN")
-	_ = sub.BindEnv("dbConnMaxLifetimeMin", "DB_CONN_MAX_LIFETIME_MIN")
-	_ = sub.BindEnv("healthCheckMaxTimeoutMin", "HEALTHCHECK_MAX_TIMEOUT_MIN")
-	_ = sub.BindEnv("healthPort", "HEALTH_PORT")
-	_ = sub.BindEnv("healthEndpoint", "HEALTH_ENDPOINT")
+	opts := AuthServiceOptions{}
+	fieldCount := reflect.TypeOf(opts).NumField()
+	for i := 0; i < fieldCount; i++ {
+		tag := reflect.TypeOf(opts).Field(i).Tag.Get("env")
+		name := reflect.TypeOf(opts).Field(i).Name
+		log.Printf("%s - %s\n", name, tag)
+		_ = sub.BindEnv(name, tag)
+	}
 }
