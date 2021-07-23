@@ -61,30 +61,42 @@ type AuthServiceOptions struct {
 
 // initOptions initializes AuthServiceOptions while reading environment values, sets default values if not specified
 func (aso *AuthServiceOptions) initOptions() error {
-	configHost := getStringEnv("CONFIG_SERVER_HOST", "localhost")
-	configPort := getIntEnv("CONFIG_SERVER_PORT", 8888)
-	appName := getStringEnv("APP_NAME", "auth-service")
 	activeProfile := getStringEnv("ACTIVE_PROFILE", "local")
-	logger.Info("loading configuration from remote server", zap.String("host", configHost),
-		zap.Int("port", configPort), zap.String("appName", appName),
-		zap.String("activeProfile", activeProfile))
-	confAddr := fmt.Sprintf("http://%s:%d/%s-%s.yaml", configHost, configPort, appName, activeProfile)
-	resp, err := http.Get(confAddr)
-	if err != nil {
-		return err
-	}
-
-	defer func() {
-		err := resp.Body.Close()
-		if err != nil {
-			panic(err)
+	appName := getStringEnv("APP_NAME", "auth-service")
+	if activeProfile == "unit-test" {
+		logger.Info("active profile is unit_test, reading configuration from static file")
+		// TODO: better approach for that?
+		viper.AddConfigPath("./../../config")
+		viper.SetConfigName("unit_test")
+		viper.SetConfigType("yaml")
+		// Find and read the config file
+		if err := viper.ReadInConfig(); err != nil {
+			return err
 		}
-	}()
+	} else {
+		configHost := getStringEnv("CONFIG_SERVER_HOST", "localhost")
+		configPort := getIntEnv("CONFIG_SERVER_PORT", 8888)
+		logger.Info("loading configuration from remote server", zap.String("host", configHost),
+			zap.Int("port", configPort), zap.String("appName", appName),
+			zap.String("activeProfile", activeProfile))
+		confAddr := fmt.Sprintf("http://%s:%d/%s-%s.yaml", configHost, configPort, appName, activeProfile)
+		resp, err := http.Get(confAddr)
+		if err != nil {
+			return err
+		}
 
-	viper.SetConfigName("application")
-	viper.SetConfigType("yaml")
-	if err = viper.ReadConfig(resp.Body); err != nil {
-		return err
+		defer func() {
+			err := resp.Body.Close()
+			if err != nil {
+				panic(err)
+			}
+		}()
+
+		viper.SetConfigName("application")
+		viper.SetConfigType("yaml")
+		if err = viper.ReadConfig(resp.Body); err != nil {
+			return err
+		}
 	}
 
 	if err := unmarshalConfig(appName, aso); err != nil {
