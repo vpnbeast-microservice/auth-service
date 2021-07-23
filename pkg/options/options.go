@@ -69,7 +69,6 @@ func (aso *AuthServiceOptions) initOptions() error {
 		viper.AddConfigPath("./../../config")
 		viper.SetConfigName("unit_test")
 		viper.SetConfigType("yaml")
-		// Find and read the config file
 		if err := viper.ReadInConfig(); err != nil {
 			return err
 		}

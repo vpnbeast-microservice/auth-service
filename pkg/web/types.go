@@ -10,11 +10,13 @@ import (
 	"time"
 )
 
+// authRequest represents the incoming auth request to the auth-service
 type authRequest struct {
 	Username string `json:"userName" validate:"required,min=3,max=16"`
 	Password string `json:"password" validate:"required,min=3,max=16"`
 }
 
+// authRequest represents the response of the auth-service to the auth request
 type authSuccessResponse struct {
 	Uuid                       string        `json:"uuid"`
 	Id                         uint          `json:"id"`
@@ -35,7 +37,6 @@ type authSuccessResponse struct {
 	Roles                      []*model.Role `json:"roles"`
 }
 
-// when user not found or auth failed
 type authFailResponse struct {
 	ErrorMessage string    `json:"errorMessage"`
 	Status       bool      `json:"status"`
@@ -50,10 +51,12 @@ type validationErrorResponse struct {
 	ErrorMessage []string  `json:"errorMessage"`
 }
 
+// validateRequest represents the request of the encryption-service validate request
 type validateRequest struct {
 	Token string `json:"token"`
 }
 
+// validateResponse represents the request of the encryption-service validate response
 type validateResponse struct {
 	Status       bool     `json:"status"`
 	Username     string   `json:"username,omitempty"`
@@ -63,11 +66,13 @@ type validateResponse struct {
 	Timestamp    string   `json:"timestamp"`
 }
 
+// encryptRequest represents the request of the encryption-service encrypt request
 type encryptRequest struct {
 	PlainText     string `json:"plainText"`
 	EncryptedText string `json:"encryptedText"`
 }
 
+// encrypt method gets the plainText and makes request to encyrption-service to encrypt plainText
 func (req encryptRequest) encrypt(plainText, encrypted string) (encryptResponse, error) {
 	postBody, err := json.Marshal(encryptRequest{
 		PlainText:     plainText,
@@ -109,6 +114,7 @@ func (req encryptRequest) encrypt(plainText, encrypted string) (encryptResponse,
 	return response, nil
 }
 
+// encryptResponse represents the response of the encryption-service request
 type encryptResponse struct {
 	Status bool `json:"status"`
 }
