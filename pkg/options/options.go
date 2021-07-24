@@ -10,8 +10,8 @@ import (
 )
 
 var (
-	logger  *zap.Logger
-	opts *AuthServiceOptions
+	logger *zap.Logger
+	opts   *AuthServiceOptions
 )
 
 func init() {
