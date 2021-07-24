@@ -11,13 +11,13 @@ import (
 
 var (
 	logger  *zap.Logger
-	options *AuthServiceOptions
+	opts *AuthServiceOptions
 )
 
 func init() {
 	logger = logging.GetLogger()
-	options = newAuthServiceOptions()
-	err := options.initOptions()
+	opts = newAuthServiceOptions()
+	err := opts.initOptions()
 	if err != nil {
 		logger.Fatal("fatal error occured while initializing options", zap.Error(err))
 	}
@@ -25,7 +25,7 @@ func init() {
 
 // GetAuthServiceOptions returns the initialized AuthServiceOptions
 func GetAuthServiceOptions() *AuthServiceOptions {
-	return options
+	return opts
 }
 
 // newAuthServiceOptions creates an AuthServiceOptions struct with zero values
