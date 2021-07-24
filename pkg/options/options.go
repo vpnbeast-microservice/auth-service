@@ -64,9 +64,9 @@ func (aso *AuthServiceOptions) initOptions() error {
 	activeProfile := getStringEnv("ACTIVE_PROFILE", "local")
 	appName := getStringEnv("APP_NAME", "auth-service")
 	if activeProfile == "unit-test" {
-		logger.Info("active profile is unit_test, reading configuration from static file")
+		logger.Info("active profile is unit-test, reading configuration from static file")
 		// TODO: better approach for that?
-		viper.AddConfigPath("./../../config")
+		viper.AddConfigPath("./config")
 		viper.SetConfigName("unit_test")
 		viper.SetConfigType("yaml")
 		if err := viper.ReadInConfig(); err != nil {
