@@ -2,11 +2,11 @@ package main
 
 import (
 	"auth-service/pkg/database"
-	"auth-service/pkg/logging"
 	"auth-service/pkg/metrics"
 	"auth-service/pkg/options"
 	"auth-service/pkg/web"
 	"github.com/gin-gonic/gin"
+	commons "github.com/vpnbeast/golang-commons"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
@@ -21,7 +21,7 @@ func init() {
 	db = database.InitDatabase()
 	gin.SetMode(gin.ReleaseMode)
 	// gin.DisableConsoleColor()
-	logger = logging.GetLogger()
+	logger = commons.GetLogger()
 	opts = options.GetAuthServiceOptions()
 }
 

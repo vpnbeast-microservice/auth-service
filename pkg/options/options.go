@@ -1,9 +1,9 @@
 package options
 
 import (
-	"auth-service/pkg/logging"
 	"fmt"
 	"github.com/spf13/viper"
+	commons "github.com/vpnbeast/golang-commons"
 	"go.uber.org/zap"
 	"net/http"
 	"strings"
@@ -15,7 +15,7 @@ var (
 )
 
 func init() {
-	logger = logging.GetLogger()
+	logger = commons.GetLogger()
 	opts = newAuthServiceOptions()
 	err := opts.initOptions()
 	if err != nil {
@@ -61,8 +61,9 @@ type AuthServiceOptions struct {
 
 // initOptions initializes AuthServiceOptions while reading environment values, sets default values if not specified
 func (aso *AuthServiceOptions) initOptions() error {
-	activeProfile := getStringEnv("ACTIVE_PROFILE", "local")
-	appName := getStringEnv("APP_NAME", "auth-service")
+	activeProfile := commons.GetStringEnv("ACTIVE_PROFILE", "local")
+	appName := commons.GetStringEnv("APP_NAME", "auth-service")
+	// TODO: below if/else logic can be implemented using library to decrease duplicate code across other projects?
 	if activeProfile == "unit-test" {
 		logger.Info("active profile is unit-test, reading configuration from static file")
 		// TODO: better approach for that?
@@ -73,8 +74,8 @@ func (aso *AuthServiceOptions) initOptions() error {
 			return err
 		}
 	} else {
-		configHost := getStringEnv("CONFIG_SERVER_HOST", "localhost")
-		configPort := getIntEnv("CONFIG_SERVER_PORT", 8888)
+		configHost := commons.GetStringEnv("CONFIG_SERVER_HOST", "localhost")
+		configPort := commons.GetIntEnv("CONFIG_SERVER_PORT", 8888)
 		logger.Info("loading configuration from remote server", zap.String("host", configHost),
 			zap.Int("port", configPort), zap.String("appName", appName),
 			zap.String("activeProfile", activeProfile))
@@ -98,7 +99,7 @@ func (aso *AuthServiceOptions) initOptions() error {
 		}
 	}
 
-	if err := unmarshalConfig(appName, aso); err != nil {
+	if err := commons.UnmarshalConfig(appName, aso); err != nil {
 		return err
 	}
 

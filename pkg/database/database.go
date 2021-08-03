@@ -1,10 +1,10 @@
 package database
 
 import (
-	"auth-service/pkg/logging"
 	"auth-service/pkg/options"
 	"database/sql"
 	"github.com/gorilla/mux"
+	commons "github.com/vpnbeast/golang-commons"
 	"go.uber.org/zap"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -21,7 +21,7 @@ var (
 )
 
 func init() {
-	logger = logging.GetLogger()
+	logger = commons.GetLogger()
 	router = mux.NewRouter()
 	opts = options.GetAuthServiceOptions()
 }

@@ -17,7 +17,7 @@ require (
 	github.com/prometheus/client_golang v1.11.0
 	github.com/spf13/viper v1.8.1
 	github.com/ugorji/go v1.2.6 // indirect
-	go.uber.org/atomic v1.8.0 // indirect
+	github.com/vpnbeast/golang-commons v0.0.4
 	go.uber.org/multierr v1.7.0 // indirect
 	go.uber.org/zap v1.18.1
 	golang.org/x/crypto v0.0.0-20210711020723-a769d52b0f97 // indirect

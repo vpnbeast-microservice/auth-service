@@ -1,10 +1,10 @@
 package web
 
 import (
-	"auth-service/pkg/logging"
 	"auth-service/pkg/options"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	commons "github.com/vpnbeast/golang-commons"
 	"go.uber.org/zap"
 	"net/http"
 	"time"
@@ -16,7 +16,7 @@ var (
 )
 
 func init() {
-	logger = logging.GetLogger()
+	logger = commons.GetLogger()
 	opts = options.GetAuthServiceOptions()
 }
 
