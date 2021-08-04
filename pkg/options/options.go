@@ -1,12 +1,8 @@
 package options
 
 import (
-	"fmt"
-	"github.com/spf13/viper"
 	commons "github.com/vpnbeast/golang-commons"
 	"go.uber.org/zap"
-	"net/http"
-	"strings"
 )
 
 var (
@@ -17,7 +13,7 @@ var (
 func init() {
 	logger = commons.GetLogger()
 	opts = newAuthServiceOptions()
-	err := opts.initOptions()
+	err := commons.InitOptions(opts, "auth-service")
 	if err != nil {
 		logger.Fatal("fatal error occured while initializing options", zap.Error(err))
 	}
@@ -57,55 +53,4 @@ type AuthServiceOptions struct {
 	DbMaxIdleConn            int    `env:"DB_MAX_IDLE_CONN"`
 	DbConnMaxLifetimeMin     int    `env:"DB_CONN_MAX_LIFETIME_MIN"`
 	HealthCheckMaxTimeoutMin int    `env:"HEALTHCHECK_MAX_TIMEOUT_MIN"`
-}
-
-// initOptions initializes AuthServiceOptions while reading environment values, sets default values if not specified
-func (aso *AuthServiceOptions) initOptions() error {
-	activeProfile := commons.GetStringEnv("ACTIVE_PROFILE", "local")
-	appName := commons.GetStringEnv("APP_NAME", "auth-service")
-	// TODO: below if/else logic can be implemented using library to decrease duplicate code across other projects?
-	if activeProfile == "unit-test" {
-		logger.Info("active profile is unit-test, reading configuration from static file")
-		// TODO: better approach for that?
-		viper.AddConfigPath("./../../config")
-		viper.SetConfigName("unit_test")
-		viper.SetConfigType("yaml")
-		if err := viper.ReadInConfig(); err != nil {
-			return err
-		}
-	} else {
-		configHost := commons.GetStringEnv("CONFIG_SERVER_HOST", "localhost")
-		configPort := commons.GetIntEnv("CONFIG_SERVER_PORT", 8888)
-		logger.Info("loading configuration from remote server", zap.String("host", configHost),
-			zap.Int("port", configPort), zap.String("appName", appName),
-			zap.String("activeProfile", activeProfile))
-		confAddr := fmt.Sprintf("http://%s:%d/%s-%s.yaml", configHost, configPort, appName, activeProfile)
-		resp, err := http.Get(confAddr)
-		if err != nil {
-			return err
-		}
-
-		defer func() {
-			err := resp.Body.Close()
-			if err != nil {
-				panic(err)
-			}
-		}()
-
-		viper.SetConfigName("application")
-		viper.SetConfigType("yaml")
-		if err = viper.ReadConfig(resp.Body); err != nil {
-			return err
-		}
-	}
-
-	if err := commons.UnmarshalConfig(appName, aso); err != nil {
-		return err
-	}
-
-	// required logic for auth-service to convert private key and public key to specific format
-	aso.PrivateKey = strings.Replace(aso.PrivateKey, "\\n", "\n", -1)
-	aso.PublicKey = strings.Replace(aso.PublicKey, "\\n", "\n", -1)
-
-	return nil
 }
