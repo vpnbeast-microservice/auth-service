@@ -3,6 +3,7 @@ package options
 import (
 	commons "github.com/vpnbeast/golang-commons"
 	"go.uber.org/zap"
+	"strings"
 )
 
 var (
@@ -17,6 +18,9 @@ func init() {
 	if err != nil {
 		logger.Fatal("fatal error occured while initializing options", zap.Error(err))
 	}
+	// required logic for auth-service to convert private key and public key to specific format
+	opts.PrivateKey = strings.Replace(opts.PrivateKey, "\\n", "\n", -1)
+	opts.PublicKey = strings.Replace(opts.PublicKey, "\\n", "\n", -1)
 }
 
 // GetAuthServiceOptions returns the initialized AuthServiceOptions
