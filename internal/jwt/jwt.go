@@ -1,7 +1,7 @@
 package jwt
 
 import (
-	"auth-service/pkg/options"
+	"auth-service/internal/options"
 	"crypto/rsa"
 	"errors"
 	"github.com/dgrijalva/jwt-go"

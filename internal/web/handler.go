@@ -1,9 +1,9 @@
 package web
 
 import (
-	"auth-service/pkg/database"
-	"auth-service/pkg/jwt"
-	"auth-service/pkg/model"
+	"auth-service/internal/database"
+	"auth-service/internal/jwt"
+	"auth-service/internal/model"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 	"gorm.io/gorm"

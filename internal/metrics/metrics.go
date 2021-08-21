@@ -1,7 +1,7 @@
 package metrics
 
 import (
-	"auth-service/pkg/options"
+	"auth-service/internal/options"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	commons "github.com/vpnbeast/golang-commons"

@@ -1,7 +1,7 @@
 package web
 
 import (
-	"auth-service/pkg/model"
+	"auth-service/internal/model"
 	"bytes"
 	"encoding/json"
 	"go.uber.org/zap"

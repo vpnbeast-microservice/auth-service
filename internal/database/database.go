@@ -1,7 +1,7 @@
 package database
 
 import (
-	"auth-service/pkg/options"
+	"auth-service/internal/options"
 	"database/sql"
 	"github.com/gorilla/mux"
 	commons "github.com/vpnbeast/golang-commons"

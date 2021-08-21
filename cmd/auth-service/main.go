@@ -1,10 +1,10 @@
 package main
 
 import (
-	"auth-service/pkg/database"
-	"auth-service/pkg/metrics"
-	"auth-service/pkg/options"
-	"auth-service/pkg/web"
+	"auth-service/internal/database"
+	"auth-service/internal/metrics"
+	"auth-service/internal/options"
+	"auth-service/internal/web"
 	"github.com/gin-gonic/gin"
 	commons "github.com/vpnbeast/golang-commons"
 	"go.uber.org/zap"
