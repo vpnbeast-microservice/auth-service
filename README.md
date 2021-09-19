@@ -3,7 +3,6 @@
 [![Docker pulls](https://img.shields.io/docker/pulls/vpnbeast/auth-service)](https://hub.docker.com/r/vpnbeast/auth-service/)
 [![Go Report Card](https://goreportcard.com/badge/github.com/vpnbeast/auth-service)](https://goreportcard.com/report/github.com/vpnbeast/auth-service)
 [![codecov](https://codecov.io/gh/vpnbeast/auth-service/branch/master/graph/badge.svg)](https://codecov.io/gh/vpnbeast/auth-service)
-[![Release](https://img.shields.io/github/release/vpnbeast/auth-service.svg)](https://github.com/vpnbeast/auth-service/releases/latest)
 [![Go version](https://img.shields.io/github/go-mod/go-version/vpnbeast/auth-service)](https://github.com/vpnbeast/auth-service)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
