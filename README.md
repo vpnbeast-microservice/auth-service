@@ -3,6 +3,9 @@
 [![Docker pulls](https://img.shields.io/docker/pulls/vpnbeast/auth-service)](https://hub.docker.com/r/vpnbeast/auth-service/)
 [![Go Report Card](https://goreportcard.com/badge/github.com/vpnbeast/auth-service)](https://goreportcard.com/report/github.com/vpnbeast/auth-service)
 [![codecov](https://codecov.io/gh/vpnbeast/auth-service/branch/master/graph/badge.svg)](https://codecov.io/gh/vpnbeast/auth-service)
+[![Release](https://img.shields.io/github/release/vpnbeast/auth-service.svg)](https://github.com/vpnbeast/auth-service/releases/latest)
+[![Go version](https://img.shields.io/github/go-mod/go-version/vpnbeast/auth-service)](https://github.com/vpnbeast/auth-service)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 This API gets the `/users/authenticate` requests from gateway with username and password, validates the request, generates access and refresh token and then
 return the response which contains detailed information about the user.
@@ -41,3 +44,6 @@ This project requires below tools while developing:
 - [Golang 1.16](https://golang.org/doc/go1.16)
 - [pre-commit](https://pre-commit.com/)
 - [golangci-lint](https://golangci-lint.run/usage/install/) - required by [pre-commit](https://pre-commit.com/)
+
+## License
+Apache License 2.0
