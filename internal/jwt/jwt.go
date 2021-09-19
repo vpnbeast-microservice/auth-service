@@ -4,8 +4,9 @@ import (
 	"auth-service/internal/options"
 	"crypto/rsa"
 	"errors"
-	"github.com/dgrijalva/jwt-go"
 	"time"
+
+	"github.com/dgrijalva/jwt-go"
 )
 
 var (
