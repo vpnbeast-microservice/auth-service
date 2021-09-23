@@ -2,7 +2,7 @@
 
 deployment:
   name: auth-service
-  image: vpnbeast/auth-service:0.0.44
+  image: vpnbeast/auth-service:0.0.45
   replicaCount: 1
   ports:
     - containerPort: 5000
