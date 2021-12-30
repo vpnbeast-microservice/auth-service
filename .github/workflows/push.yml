@@ -132,8 +132,11 @@ jobs:
 
   build:
     needs:
-      - coverage
-      - sonarcloud
+      - lint
+      - vet
+      - ineffassign
+      - test
+      - codeql
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest]
@@ -148,17 +151,28 @@ jobs:
       - name: Test
         run: make build
 
-  dockerize_and_commit:
+  release:
     needs:
+      - coverage
+      - sonarcloud
       - build
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
-      - name: Set tag.sh executable
-        run: chmod +x ci-scripts/tag.sh
-      - name: Run tag.sh
-        run: /bin/bash ci-scripts/tag.sh
+        uses: actions/checkout@v1
+      - name: Set new version
+        env:
+          CHART_NAME: auth-service
+        run: |
+          CURRENT_VERSION=$(grep RELEASE_VERSION version.properties | cut -d "=" -f2)
+          VERSION_MAJOR=$(echo "$CURRENT_VERSION" | cut -d "." -f 1)
+          VERSION_MINOR=$(echo "$CURRENT_VERSION" | cut -d "." -f 2)
+          VERSION_PATCH=$(echo "$CURRENT_VERSION" | cut -d "." -f 3)
+          VERSION_PATCH=$(expr "${VERSION_PATCH}" + 1)
+          RELEASE_VERSION="${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}"
+          sed -i "s/${CURRENT_VERSION}/${RELEASE_VERSION}/g" version.properties
+          sed -i "s/${CURRENT_VERSION}/${RELEASE_VERSION}/g" charts/"${CHART_NAME}"/Chart.yaml
+          sed -i "s/${CURRENT_VERSION}/${RELEASE_VERSION}/g" charts/"${CHART_NAME}"/values.yaml
       - name: Set release_version variable
         run: echo "release_version=$(grep RELEASE_VERSION version.properties | cut -d '=' -f2)" >> $GITHUB_ENV
       - name: Build the Docker image
@@ -170,7 +184,14 @@ jobs:
           tags: "latest,${{ env.release_version }}"
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
-      - name: Set commit.sh executable
-        run: chmod +x ci-scripts/commit.sh
-      - name: Run commit.sh
-        run: /bin/bash ci-scripts/commit.sh ${{ secrets.GITHUB_TOKEN }} ${{ env.release_version }}
+      - name: Commit changes to Git repo
+        run: |
+          git config --global user.name vpnbeast-ci
+          git config --global user.email info@thevpnbeast.com
+          git --no-pager diff
+          git add --all
+          git remote add github "https://vpnbeast-ci:${{ secrets.ACTIONS_SECRET }}@github.com/vpnbeast/auth-service.git"
+          git commit -am "[skip ci] version v${{ env.release_version }} released"
+          git tag -a "v${{ env.release_version }}" -m "v${{ env.release_version }} tagged"
+          git status
+          git push github HEAD:master --force --follow-tags
