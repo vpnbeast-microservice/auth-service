@@ -42,4 +42,12 @@ upgrade-deps:
 	go mod tidy
 	go mod vendor
 
+upgrade-direct-deps:
+	for item in `grep -v 'indirect' go.mod | grep '/' | cut -d ' ' -f 1`; do \
+		echo "trying to upgrade direct dependency $$item" ; \
+		go get -u $$item ; \
+  	done
+	go mod tidy
+	go mod vendor
+
 all: test build run
