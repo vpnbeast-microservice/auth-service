@@ -38,9 +38,9 @@ func whoamiHandler() gin.HandlerFunc {
 		}
 		var user model.User
 		db := database.GetDatabase()
-		switch err := db.Preload("Roles").Where("user_name = ?", subject).First(&user).Error; err {
+		switch err := db.Preload("Roles").Where(queryUsername, subject).First(&user).Error; err {
 		case gorm.ErrRecordNotFound:
-			logger.Warn("no rows were returned!", zap.String("user", subject))
+			logger.Warn(errNoRowsReturned, zap.String("user", subject))
 			errorResponse(context, http.StatusNotFound, errUserNotFound)
 			context.Abort()
 			return
@@ -89,9 +89,9 @@ func refreshHandler() gin.HandlerFunc {
 
 		var user model.User
 		db := database.GetDatabase()
-		switch err := db.Preload("Roles").Where("user_name = ?", subject).First(&user).Error; err {
+		switch err := db.Preload("Roles").Where(queryUsername, subject).First(&user).Error; err {
 		case gorm.ErrRecordNotFound:
-			logger.Warn("no rows were returned!", zap.String("user", subject))
+			logger.Warn(errNoRowsReturned, zap.String("user", subject))
 			errorResponse(context, http.StatusNotFound, errUserNotFound)
 			context.Abort()
 			return
@@ -158,7 +158,6 @@ func refreshHandler() gin.HandlerFunc {
 }
 
 func validateHandler() gin.HandlerFunc {
-	// TODO: refactor
 	return func(context *gin.Context) {
 		req, _ := context.Get("data")
 		validateReq := req.(validateRequest)
@@ -177,9 +176,9 @@ func validateHandler() gin.HandlerFunc {
 
 		var user model.User
 		db := database.GetDatabase()
-		switch err := db.Where("user_name = ?", subject).First(&user).Error; err {
+		switch err := db.Where(queryUsername, subject).First(&user).Error; err {
 		case gorm.ErrRecordNotFound:
-			logger.Warn("no rows were returned!", zap.String("user", subject))
+			logger.Warn(errNoRowsReturned, zap.String("user", subject))
 			validateRes := validateResponse{
 				Status:       false,
 				ErrorMessage: "no such user",
@@ -212,10 +211,9 @@ func authenticateHandler() gin.HandlerFunc {
 		logger.Info("", zap.Any("authReq", authReq.Username))
 		var user model.User
 		db := database.GetDatabase()
-		switch err := db.Preload("Roles").Where("user_name = ?", authReq.Username).First(&user).Error; err {
-		// switch err := db.Where("user_name = ?", authReq.Username).First(&user).Error; err {
+		switch err := db.Preload("Roles").Where(queryUsername, authReq.Username).First(&user).Error; err {
 		case gorm.ErrRecordNotFound:
-			logger.Warn("no rows were returned!", zap.String("user", authReq.Username))
+			logger.Warn(errNoRowsReturned, zap.String("user", authReq.Username))
 			errorResponse(context, http.StatusNotFound, errUserNotFound)
 			context.Abort()
 			return

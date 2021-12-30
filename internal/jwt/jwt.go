@@ -52,7 +52,6 @@ func GenerateToken(username string, roles []string, expiresAtInMinutes int32) (s
 
 // ValidateToken validates JWT token by checking if issuer is registered user, expiration time not passed etc
 func ValidateToken(signedToken string) (string, []string, error, int) {
-	// TODO: refactor
 	var roles []string
 	token, err := jwt.ParseWithClaims(
 		signedToken,
