@@ -414,8 +414,8 @@ github.com/ugorji/go v1.2.6/go.mod h1:anCg0y61KIhDlPZmnH+so+RQbysYVyDko0IMgJv0Nn
 github.com/ugorji/go/codec v1.1.7/go.mod h1:Ax+UKWsSmolVDwsd+7N3ZtXu+yMGCf907BLYF3GoBXY=
 github.com/ugorji/go/codec v1.2.6 h1:7kbGefxLoDBuYXOms4yD7223OpNMMPNPZxXk5TvFcyQ=
 github.com/ugorji/go/codec v1.2.6/go.mod h1:V6TCNZ4PHqoHGFZuSG1W8nrCzzdgA2DozYxWFFpvxTw=
-github.com/vpnbeast/golang-commons v0.0.26 h1:DQ8l4H3vaVT58SNPPb0MEoHe0CW4f1cE786tbH4Q5K8=
-github.com/vpnbeast/golang-commons v0.0.26/go.mod h1:+hsGJym4bc9BVcbE8WjjolTmkXMnm0fX8PvF+2qq0gw=
+github.com/vpnbeast/golang-commons v0.0.29 h1:58yvxPji1fXRYRL++Ml7yBtcJcMRfR9NTmNLTaAZxRY=
+github.com/vpnbeast/golang-commons v0.0.29/go.mod h1:dhoeUabHl9BbYFeovaOQsEu36OA5TP0PcBRIFtOpPfw=
 github.com/yuin/goldmark v1.1.25/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
 github.com/yuin/goldmark v1.1.27/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
 github.com/yuin/goldmark v1.1.32/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=

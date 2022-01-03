@@ -14,9 +14,8 @@ require (
 	github.com/prometheus/client_golang v1.11.0
 	github.com/prometheus/common v0.30.0 // indirect
 	github.com/prometheus/procfs v0.7.3 // indirect
-	github.com/spf13/afero v1.7.1 // indirect
 	github.com/ugorji/go v1.2.6 // indirect
-	github.com/vpnbeast/golang-commons v0.0.26
+	github.com/vpnbeast/golang-commons v0.0.29
 	go.uber.org/zap v1.19.1
 	golang.org/x/crypto v0.0.0-20211215153901-e495a2d5b3d3 // indirect
 	gorm.io/driver/mysql v1.2.2
