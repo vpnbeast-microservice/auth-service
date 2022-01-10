@@ -17,7 +17,7 @@ require (
 	github.com/spf13/afero v1.7.1 // indirect
 	github.com/ugorji/go v1.2.6 // indirect
 	github.com/vpnbeast/golang-commons v0.0.26
-	go.uber.org/zap v1.19.1
+	go.uber.org/zap v1.20.0
 	golang.org/x/crypto v0.0.0-20211215153901-e495a2d5b3d3 // indirect
 	gorm.io/driver/mysql v1.2.2
 	gorm.io/gorm v1.22.4
