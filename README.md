@@ -2,8 +2,11 @@
 [![CI](https://github.com/vpnbeast/auth-service/workflows/CI/badge.svg?event=push)](https://github.com/vpnbeast/auth-service/actions?query=workflow%3ACI)
 [![Docker pulls](https://img.shields.io/docker/pulls/vpnbeast/auth-service)](https://hub.docker.com/r/vpnbeast/auth-service/)
 [![Go Report Card](https://goreportcard.com/badge/github.com/vpnbeast/auth-service)](https://goreportcard.com/report/github.com/vpnbeast/auth-service)
-[![codecov](https://codecov.io/gh/vpnbeast/auth-service/branch/master/graph/badge.svg)](https://codecov.io/gh/vpnbeast/auth-service)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=vpnbeast_auth-service&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=vpnbeast_auth-service)
+[![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=vpnbeast_auth-service&metric=reliability_rating)](https://sonarcloud.io/summary/new_code?id=vpnbeast_auth-service)
+[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=vpnbeast_auth-service&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=vpnbeast_auth-service)
+[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=vpnbeast_auth-service&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=vpnbeast_auth-service)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=vpnbeast_auth-service&metric=coverage)](https://sonarcloud.io/summary/new_code?id=vpnbeast_auth-service)
 [![Go version](https://img.shields.io/github/go-mod/go-version/vpnbeast/auth-service)](https://github.com/vpnbeast/auth-service)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
